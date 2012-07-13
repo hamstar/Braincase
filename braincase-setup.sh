@@ -52,8 +52,8 @@ password=`randpass 10 0` #generates a random pass
 
 ########### Installing Media Wiki
 	#Download Mediawiki latest as of this script
-	mkdir ~/braincase
-	cd ~/braincase && wget http://download.wikimedia.org/mediawiki/1.19/mediawiki-1.19.1.tar.gz && tar xvzf mediawiki-*.tar.gz
+	mkdir ~/var/www/html/braincase
+	cd ~/var/www/html/braincase && wget http://download.wikimedia.org/mediawiki/1.19/mediawiki-1.19.1.tar.gz && tar xvzf mediawiki-*.tar.gz
 	cd mediawiki-*
 	##TODO: We need to get the following two from the user (Start of script?)
 	##<name>: The name of the wiki
