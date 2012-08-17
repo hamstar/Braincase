@@ -1,9 +1,37 @@
 #!/bin/bash
 
+# Author: Robert McLeod
+# Date:   16 August 2012
+# Desc:	  Creates a user to be used for Braincase
+# 		  This script will:
+#			- use useradd to create a new user on the system
+#			- create a bare git repository in the users home
+
+# The usage message
+function usage() {
+	echo "Usage: create-braincase-user <name>";
+	echo "\t- creates and sets up a user for Braincase";
+}
+
+# Check the current user is root
+if [ "$UID" != 0 ]; then
+	echo "You must be root to use this program.";
+	exit 1;
+fi
+
+# Print usage if requested
+if [ "$1" = "-h" ];
+	usage;
+	exit 0;
+fi
+
+# The new user
 new_user=$1;
 
+# Verify that a user was given
 if [ "$new_user" = "" ]; then
-	echo "No username given";
+	echo "No username given.";
+	usage;
 	exit 1;
 fi
 
