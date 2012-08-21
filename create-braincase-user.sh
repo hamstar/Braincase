@@ -17,30 +17,31 @@ function usage() {
 if [ "$UID" != 0 ]; then
 	echo "You must be root to use this program.";
 	exit 1;
-fi
+fi;
 
 # Print usage if requested
 if [ "$1" = "-h" ];
 	usage;
 	exit 0;
-fi
+fi;
 
 # The new user
 new_user=$1;
+HOME="/home/$new_user";
 
 # Verify that a user was given
 if [ "$new_user" = "" ]; then
 	echo "No username given.";
 	usage;
 	exit 1;
-fi
+fi;
 
 # Check if the user exists
 user_exists="$(cat /etc/passwd|grep $new_user|wc -l)";
 if [ "$user_exists" = "1" ]; then
 	echo "User $new_user already exists";
 	exit 1;
-fi
+fi;
 
 # Create the user
 echo -n "Creating new Braincase user $new_user... ";
@@ -53,13 +54,13 @@ else
 	echo "failed ($?):";
 	echo $USERADD_OUTPUT;
 	exit 1;
-fi
+fi;
 
 # Check if the repo exists
 if [ -f "/home/$new_user/repo" ]; then
 	echo "Repository already exists";
 	exit 1;
-fi
+fi;
 
 # Create the repo
 echo -n "Creating a personal repository for $new_user..."
@@ -72,7 +73,12 @@ else
 	echo "failed ($?):";
 	echo $SU_OUTPUT;
 	exit 1;
-fi
+fi;
+
+# Create the .braincase folder
+if ! [ -f "$HOME/.braincase" ]; then
+	mkdir "$HOME/.braincase";
+fi;
 
 echo
 echo "Braincase user $new_user setup successfully.";
