@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Setup the variables
+USER="$1";
+
+if [ "$USER" != "" ] 					# if a user was specified at command line
+&& [ $UID != 0 ] 						# and we are not root
+&& [ "$USER" != "$((whoami))" ]; then	# and we are not the user specified
+	echo "You must be root or $USER to export $USERS backup";
+	exit 1;								# then deny access
+fi;
+
+# If no user specified at command use us
+if [ "$USER" = "" ]; then
+	USER=`whoami`;
+fi;
+
+HOME="/home/$USER";
+CONFIG="$HOME/.braincase/config";
+
+# Check if a user was given
+if [ "$USER" = "" ]; then
+	echo "Usage: braincase-export-backup <username>";
+	exit 1;
+fi;
+
+# Check the user exists
+user_exists="$((grep '^$USER:' /etc/passwd | wc -l))";
+if [ "$user_exists" = "0" ]; then
+	echo "User $USER does not exist";
+	exit 1;
+fi;
+
+# Check home exists
+if [ -e $HOME ]; then
+	echo "Cannot find the homedir for $USER";
+	exit 1;
+fi;
+
+# Check if exporting backups is enabled
+if [ "$((braincase-config $USER.export_backups))" = "false" ]; then
+	echo "Backup exporting disabled for $USER";
+	exit 1;
+fi;
