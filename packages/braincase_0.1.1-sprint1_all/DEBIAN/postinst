@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "BRAINCASE DROPBOX SUPPORT:";
+echo "If you haven't already installed dropbox you can do so with the command: \`dropbox-auto-install'";
