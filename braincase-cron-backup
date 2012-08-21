@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Author:	Robert McLeod
+# Date:		21 August 2012
+# Desc:		Turns on brainbase backups by adding a line to the crontab
+
+# Check if we are root
+if [ $UID != 0 ]; then
+	echo "This script needs to run as root";
+	exit 1;
+fi;
+
+# The cron string for running backups
+CRONTAB_STRING="0 0 * * * root backup-braincase";
+
+# Check what the command line specified
+case $1 in
+"-e") # enable
+	echo $CRONTAB_STRING >> /etc/crontab # put our line into the crontab
+	;;
+"-d") # disable
+	cp /etc/crontab /etc/crontab.old; 							# backup the crontab just incase
+	cat /etc/crontab | grep -v $CRONTAB_STRING > /tmp/crontab 	# remove our line from crontab
+	mv /tmp/crontab /etc/crontab;								# move the changes to crontab
+	;;
+*) # show usage otherwise
+	echo "Usage: braincase-cron-backup <-e|-d>";
+	echo "\t-e\tEnables backup operations every midnight";
+	echo "\t-d\tDisables backup operations every midnight";
+	exit 1;
+esac
