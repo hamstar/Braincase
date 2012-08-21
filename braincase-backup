@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Author:	Robert McLeod
+# Date:		21 August 2012
+# Desc:		Backs up all braincase users on the system
+
+# Function to run the backups
+function run_backups() {
+	
+	# Get a list of all the braincase users
+	USERS="";
+
+	# Run through all the users
+	for user in $USERS; do
+	  braincase-backup-user $user;
+	  braincase-export-backup $user;
+	done;
+}
+
+# Check the args
+case $1 in
+"--run")
+	run_backups;
+	;;
+*)
+	echo "Usage: braincase-backup --run";
+	;;
+esac;
