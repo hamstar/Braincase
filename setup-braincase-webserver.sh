@@ -12,6 +12,12 @@ function usage() {
 	echo "Usage: ./$0 ";
 }
 
+function enableUserDir() {
+a2enmod userdir
+sed -i.bak 's/public_html/webdir/g' /etc/apache2/mods-enabled/userdir.conf  #Change folder to webdir
+
+/etc/init.d/apache2 restart
+}
 # Check the current user is root
 if [ "$UID" != 0 ]; then
 	echo "You must be root to use this program.";
