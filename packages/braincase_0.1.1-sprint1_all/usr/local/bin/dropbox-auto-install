@@ -17,6 +17,11 @@ function check_url() {
 	fi;
 }
 
+function check_if_dropbox_installed() {
+	# list packages					# ignore if only config files remain
+	return `dpkg -l | grep dropbox | grep -v rc | wc -l`;
+}
+
 # Installs dropbox
 function install_dropbox() {
 	
@@ -56,6 +61,12 @@ function get_arch() {
 
 	echo $arch;
 }
+
+check_if_dropbox_installed;
+if [ "$?" != 0 ] && [ "$1" != "-f" ]; then
+	echo "Dropbox already installed (use -f to force install).";
+	exit 0;
+fi
 
 # Build some vars
 arch=`get_arch`;
