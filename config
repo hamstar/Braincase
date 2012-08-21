@@ -1,0 +1,15 @@
+# Example dropbox file stored at ~/.braincase/config
+#
+# WARNING: This file should only be readable by the owner
+# 	run this command: `chmod 700 ~/.braincase/config'
+#
+# Config fields should not have dots in them
+
+# General settings
+export_backups="true";
+export_to="dropbox";
+
+# Dropbox config
+dropbox_user="";
+dropbox_password="";
+dropbox_dir="";
