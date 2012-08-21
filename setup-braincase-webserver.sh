@@ -13,7 +13,7 @@ function usage() {
 }
 
 function enableUserDir() {
-a2enmod userdir
+/usr/sbin/a2enmod userdir
 sed -i.bak 's/public_html/webdir/g' /etc/apache2/mods-enabled/userdir.conf  #Change folder to webdir
 
 /etc/init.d/apache2 restart
@@ -70,7 +70,7 @@ else
 fi
 
 #Enable per-user mod
-
+enableUserDir()
 
 
 
