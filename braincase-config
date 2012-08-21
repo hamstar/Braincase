@@ -1,0 +1,39 @@
+#!/bin/bash
+
+function read_field() {
+	echo $1 | grep -v "^#" | grep "$2" | cut -d'=' -f2;
+}
+
+function write_field() {
+	$old_value=`read_field $1 $2`;
+	OLD_LINE="$2=\"$old_value\";"
+	NEW_LINE="$2=\"$3\";"
+	cat $1 | sed "s/OLD_LINE/$NEW_LINE/" > $1.tmp;
+	mv $1.tmp $1;
+}
+
+FIELD=$1;
+VALUE=$2;
+
+# Check if user is in the field
+echo $FIELD | grep ".";
+if [ "$?" = "1" ]; then
+	USER=`echo $FIELD|cut -d'.' -f1`;
+	FIELD=`echo $FIELD|cut -d'.' -f2`;
+fi;
+
+# Set the homedir
+HOME="/home/$USER";
+CONFIG="$HOME/.braincase/config";
+
+# Only let root read and write other users configs
+if [ "$USER" != "$((whoami))" ] && [ $UID != 0 ]; then
+	echo "You must be root to read or write other users configuration";
+	exit 1;
+fi;
+
+if [ "$VALUE" = "" ]; then
+	read_field $CONFIG $FIELD;
+else
+	write_field $CONFIG $FIELD $VALUE;
+fi;
