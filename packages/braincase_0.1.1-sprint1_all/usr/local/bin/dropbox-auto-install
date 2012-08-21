@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Author:	Robert McLeod
+# Date:		20 August 2012
+# Desc:		Automatically installs dropbox on a system by
+#			downloading and installing the correct package
+# 			and making sure its dependencies are met.
+
 # checks that a url exists
 function check_url() {
 	
