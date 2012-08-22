@@ -75,6 +75,11 @@ else
 	exit 1;
 fi;
 
+# Make the web directory
+if ! [ -d "$HOME/web" ]; then
+	mkdir "$HOME/web";
+fi;
+
 # Create the .braincase folder
 if ! [ -f "$HOME/.braincase" ]; then
 	mkdir "$HOME/.braincase";
