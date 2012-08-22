@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Check what needs to be exported to run the appropriate function
+function do_exports() {
+	EXPORTS="$1";
+	FILENAME="$2";
+
+	# Dropbox?
+	echo $EXPORTS | grep dropbox
+	if [ "$?" = "0" ]; then # grep found dropbox
+		braincase-export-to-dropbox "$FILENAME";
+	fi;
+}
+
 # Setup the variables
 USER="$1";
 
@@ -42,3 +54,9 @@ if [ "$((braincase-config $USER.export_backups))" = "false" ]; then
 	echo "Backup exporting disabled for $USER";
 	exit 1;
 fi;
+
+# OK get the file we need to export
+$FILENAME="cat $HOME/backups/latest";
+
+# Check what we need to export to
+do_exports `braincase-config $USER.export_to` $FILENAME;
