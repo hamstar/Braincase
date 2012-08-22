@@ -11,17 +11,54 @@ if [ $UID != 0 ]; then
 fi;
 
 # The cron string for running backups
-CRONTAB_STRING="0 0 * * * root backup-braincase";
+CRONTAB_STRING="0 0 * * * root braincase-backup --run";
+CRONTAB_STRING_SAFE="0 0 \* \* \* root braincase-backup --run";
+
+function backups_enabled() {
+	
+	if [ "$(grep "$CRONTAB_STRING_SAFE" /etc/crontab|wc -l)" = 0 ]; then
+		echo "false";
+	else
+		echo "true";
+	fi;
+}
 
 # Check what the command line specified
-case $1 in
+case "$1" in
 "-e") # enable
-	echo $CRONTAB_STRING >> /etc/crontab # put our line into the crontab
+	if [ "$(backups_enabled)" = "true" ]; then
+		exit 0;
+	fi;
+
+	echo "$CRONTAB_STRING"  >> /etc/crontab # put our line into the crontab
+
+	if [ "$(backups_enabled)" = "false" ]; then
+		echo "Braincase backups could not be enabled in crontab.";
+		exit 1;
+	fi;
 	;;
 "-d") # disable
-	cp /etc/crontab /etc/crontab.old; 							# backup the crontab just incase
-	cat /etc/crontab | grep -v $CRONTAB_STRING > /tmp/crontab 	# remove our line from crontab
-	mv /tmp/crontab /etc/crontab;								# move the changes to crontab
+	if [ "$(backups_enabled)" = "false" ]; then
+		exit 0;
+	fi;
+
+	cp /etc/crontab /etc/crontab.old; 				# backup the crontab just incase
+	cat /etc/crontab | grep -v "$CRONTAB_STRING_SAFE" > /tmp/crontab 	# remove our line from crontab
+	cp /tmp/crontab /etc/crontab;					# move the changes to crontab
+
+	if [ "$(backups_enabled)" = "true" ]; then
+		echo "Braincase backups could not be disabled in crontab";
+		exit 1;
+	fi;
+
+	exit 0;
+	;;
+"")
+	if [ "$(backups_enabled)" = "true" ]; then
+		echo "Braincase backups are enabled";
+	else
+		echo "Braincase backups are disabled";
+	fi;
 	;;
 *) # show usage otherwise
 	echo "Usage: braincase-cron-backup <-e|-d>";
