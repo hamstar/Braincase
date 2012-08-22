@@ -57,7 +57,7 @@ else
 fi;
 
 # Check if the repo exists
-if [ -f "/home/$new_user/repo" ]; then
+if [ -d "/home/$new_user/repo" ]; then
 	echo "Repository already exists";
 	exit 1;
 fi;
@@ -81,8 +81,10 @@ if ! [ -d "$HOME/web" ]; then
 fi;
 
 # Create the .braincase folder
-if ! [ -f "$HOME/.braincase" ]; then
+if ! [ -d "$HOME/.braincase" ]; then
 	mkdir "$HOME/.braincase";
+	touch "$HOME/.braincase/config";
+	chmod og-rwx "$HOME/.braincase/config";
 fi;
 
 echo
