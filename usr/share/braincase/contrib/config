@@ -5,7 +5,5 @@
 
 --- 
 backups: 
-  :export: "true"
-  :export_to: "dropbox"
-  :dropbox_user: dropbox
-  :dropbox_pass: dropbox
+  :export: "false"
+  :export_to: ""
