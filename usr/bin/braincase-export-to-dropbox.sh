@@ -7,6 +7,12 @@
 #			- 
 #			- 
 #Notes: requires: python-gpgme
+
+#Installs dropbox
+setup_dropbox() {
 python2.6 dropbox.py start -i
+python2.6 dropbox.py autostart
+
+}
 
 
