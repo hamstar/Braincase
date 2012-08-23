@@ -42,7 +42,7 @@ cd $HOME && tar -cvzf $BACKUP_DIR/home.tar.gz . --exclude="backups" >> $BACKUP_D
 cd $BACKUP_DIR && md5sum home.tar.gz > $BACKUP_DIR/md5sums
 
 # Zip it up
-zip -rq9 $ZIPNAME $BACKUP_DIR;
+cd $BACKUP_DIR && zip -rq9 $ZIPNAME .;
 
 # Set permissions on the zip file
 chown $USER:$USER $ZIPNAME;
