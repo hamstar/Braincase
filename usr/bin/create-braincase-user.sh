@@ -83,7 +83,7 @@ fi;
 # Create the .braincase folder
 if ! [ -d "$HOME/.braincase" ]; then
 	mkdir "$HOME/.braincase";
-	touch "$HOME/.braincase/config";
+	cp /usr/bin/share/braincase/contrib/config "$HOME/.braincase/config";
 	chmod og-rwx "$HOME/.braincase/config";
 fi;
 
