@@ -4,6 +4,22 @@
 # Date:		21 August 2012
 # Desc:		Backs up all braincase users on the system
 
+# Check we are root
+
+# Check that the temp file exists and clear it
+function init() {
+	if ! [ -d "/tmp/braincase" ]; then
+		mkdir /tmp/braincase;
+	fi;
+
+	rm -fr /tmp/braincase/*
+}
+
+# Cleanup after the backup
+function cleanup() {
+	rm -fr /tmp/braincase/*	
+}
+
 # Function to run the backups
 function run_backups() {
 	
@@ -20,7 +36,9 @@ function run_backups() {
 # Check the args
 case $1 in
 "--run")
+	init;
 	run_backups;
+	cleanup;
 	;;
 *)
 	echo "Usage: braincase-backup --run";
