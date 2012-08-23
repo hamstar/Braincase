@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Author:	Robert McLeod
+# Date: 	23 August 2012
+# Desc:		Pre removal script for Braincase
+
+# Disable automatic backups
+braincase-cron-backup -d
