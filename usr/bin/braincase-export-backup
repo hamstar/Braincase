@@ -37,8 +37,8 @@ if [ "$USER" = "" ]; then
 fi;
 
 # Check the user exists
-user_exists="$((grep '^$USER:' /etc/passwd | wc -l))";
-if [ "$user_exists" = "0" ]; then
+user-exists $USER;
+if [ "$?" = "1" ]; then
 	echo "User $USER does not exist";
 	exit 1;
 fi;

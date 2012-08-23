@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Author: Robert McLeod
+# Date:   23 August 2012
+# Desc:	  Checks if a user exists
+
+user_exists=`grep "^$1:" /etc/passwd | wc -l`;
+if [ "$user_exists" = "0" ]; then
+	exit 1;
+fi;
+
+exit 0;
