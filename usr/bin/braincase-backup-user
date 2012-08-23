@@ -15,39 +15,41 @@ if [ "$USER" = "" ]; then
 fi;
 
 # Check the user exists
-user_exists="$((grep '^$USER:' /etc/passwd | wc -l))";
+user_exists=`grep "^$USER:" /etc/passwd | wc -l`;
 if [ "$user_exists" = "0" ]; then
 	echo "User $USER does not exist";
 	exit 1;
 fi;
 
 # Check home exists
-if [ -e $HOME ]; then
+if ! [ -d $HOME ]; then
 	echo "Cannot find the homedir for $USER";
 	exit 1;
 fi;
 
 # Setup some variables
-DATE=`date +%d%M%Y`;
+DATE=`date +%d%b%Y`;
 FOLDERNAME="$USER-braincase-$DATE";
-BACKUP_DIR="$HOME/backups/$FOLDERNAME";
-FILENAME="$FOLDERNAME.zip";
+BACKUP_DIR="/tmp/braincase/$FOLDERNAME";
+ZIPNAME="$HOME/backups/$FOLDERNAME.zip";
+
+mkdir -p $BACKUP_DIR;
 
 # Tar up the home
-tar -cvzf $BACKUP_DIR/home.tar.gz $HOME >> $BACKUP_DIR/manifest.txt
+cd $HOME && tar -cvzf $BACKUP_DIR/home.tar.gz . --exclude="backups" >> $BACKUP_DIR/manifest.txt
 
 # Record the md5sum
-md5sum $BACKUP_DIR/home.tar.gz > $BACKUP_DIR/md5sums
+cd $BACKUP_DIR && md5sum home.tar.gz > $BACKUP_DIR/md5sums
 
 # Zip it up
-zip -rq9 -b $BACKUP_DIR $FILENAME
+zip -rq9 $ZIPNAME $BACKUP_DIR;
 
 # Set permissions on the zip file
-chown $USER:$USER $FILENAME;
-chmod 700 $FILENAME;
+chown $USER:$USER $ZIPNAME;
+chmod 700 $ZIPNAME;
 
 # Don't need this anymore
 #rm -fr $BACKUP_DIR;
 
 # Update the latest backup file with this
-echo $FILENAME > $HOME/backups/latest;
+echo $ZIPNAME > $HOME/backups/latest;
