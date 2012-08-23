@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Check the current user is root
+if [ "$UID" != 0 ]; then
+	echo "You must be root to use this script.";
+	exit 1;
+fi;
+
+function usage() {
+	echo "Usage: braincase-export-backup <username>";
+}
+
 # Check what needs to be exported to run the appropriate function
 function do_exports() {
 	EXPORTS="$1";
@@ -12,21 +22,14 @@ function do_exports() {
 	fi;
 }
 
+# Make sure a user was specified at command line
+if [ "$1" != "" ]; then
+	usage;
+	exit 1;
+fi;
+
 # Setup the variables
 USER="$1";
-
-if [ "$USER" != "" ] 					# if a user was specified at command line
-&& [ $UID != 0 ] 						# and we are not root
-&& [ "$USER" != "$((whoami))" ]; then	# and we are not the user specified
-	echo "You must be root or $USER to export $USERS backup";
-	exit 1;								# then deny access
-fi;
-
-# If no user specified at command use us
-if [ "$USER" = "" ]; then
-	USER=`whoami`;
-fi;
-
 HOME="/home/$USER";
 CONFIG="$HOME/.braincase/config";
 
