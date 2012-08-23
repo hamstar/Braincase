@@ -30,44 +30,12 @@ if [ "$1" = "-h" ]; then
 	exit 0;
 fi
 
-# Verify Apache2 isn't already installed
-if [ -d /etc/apache2 ]; then
-	echo  "It seems Apache2 is already installed!... Exiting";
+# Verify Apache2 IS installed
+if ![ -d /etc/apache2 ]; then
+	echo  "It seems Apache2 is not already installed!... Exiting";
 	exit 1;
-fi
+f
 
-
-## Install Apache2
-#Clean
-echo -n "Cleaning apt-get cache... ";
-apt-get clean -qq 2>&1
-if [ $? = "1" ]; then
-	echo -n "There was a error installing Apache. Error printed below";
-	exit
-fi
-echo  "done ";
-
-#Update
-echo -n "Updating apt-get repo... ";
-apt-get update -qq 2>&1
-if [ $? = "1" ]; then
-	echo -n "There was a error installing Apache. Error printed below";
-	exit
-fi
-echo  "done ";
-
-#Install
-echo -n "Installing Apache2... ";
-INSTALL_OUTPUT=`apt-get install -qq -f apache2 2>&1`
-
-
-if [ $? = "1" ]; then
-	echo -n "There was a error installing Apache. Error printed below";
-	echo -n $INSTALL_OUTPUT;
-	exit 1;
-else
-   echo  "done ";
-fi
 
 #Enable per-user mod
 enableUserDir()
