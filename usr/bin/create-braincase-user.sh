@@ -80,6 +80,11 @@ if ! [ -d "$HOME/web" ]; then
 	mkdir "$HOME/web";
 fi;
 
+# Make the backups directory
+if ! [ -d "$HOME/backups" ]; then
+	mkdir "$HOME/backups";
+fi;
+
 # Create the .braincase folder
 if ! [ -d "$HOME/.braincase" ]; then
 	mkdir "$HOME/.braincase";
