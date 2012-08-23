@@ -8,7 +8,7 @@
 function run_backups() {
 	
 	# Get a list of all the braincase users
-	USERS="";
+	USERS=`find /home -maxdepth 2 -name .braincase -type d 2> /dev/null | cut -d'/' -f3|tr -s '\n' ' '`;
 
 	# Run through all the users
 	for user in $USERS; do
