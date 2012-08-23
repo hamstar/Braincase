@@ -7,6 +7,8 @@
 
 # Configure dropbox for the user
 python2.6 dropbox.py start -i
+python2.6 dropbox.py autostart
+
 
 # Once thats done enable backup exporting to dropbox
 braincase-config backups.export "true"
