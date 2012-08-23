@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Author:	Robert McLeod
+# Date:		21 August 2012
+# Desc:		Backs up an individual users braincase
+
+# Setup the variables
+USER="$1";
+HOME="/home/$USER";
+
+# Check if a user was given
+if [ "$USER" = "" ]; then
+	echo "Usage: braincase-backup-user <username>";
+	exit 1;
+fi;
+
+# Check the user exists
+user-exists $USER;
+if [ "$?" = "1" ]; then
+	echo "User $USER does not exist";
+	exit 1;
+fi;
+
+# Check home exists
+if ! [ -d $HOME ]; then
+	echo "Cannot find the homedir for $USER";
+	exit 1;
+fi;
+
+# Setup some variables
+DATE=`date +%d%b%Y`;
+FOLDERNAME="$USER-braincase-$DATE";
+BACKUP_DIR="/tmp/braincase/$FOLDERNAME";
+ZIPNAME="$HOME/backups/$FOLDERNAME.zip";
+
+mkdir -p $BACKUP_DIR;
+
+# Tar up the home
+cd $HOME && tar -cvzf $BACKUP_DIR/home.tar.gz . --exclude="backups" >> $BACKUP_DIR/manifest.txt
+
+# Record the md5sum
+cd $BACKUP_DIR && md5sum home.tar.gz > $BACKUP_DIR/md5sums
+
+# Zip it up
+cd $BACKUP_DIR && zip -rq9 $ZIPNAME .;
+
+# Set permissions on the zip file
+chown $USER:$USER $ZIPNAME;
+chmod 700 $ZIPNAME;
+
+# Don't need this anymore
+#rm -fr $BACKUP_DIR;
+
+# Update the latest backup file with this
+echo $ZIPNAME > $HOME/backups/latest;

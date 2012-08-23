@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# Author: Robert McLeod
+# Date:   22 August 2012
+# Desc:	  Handles exporting braincase backups to external services
+#		  Reads the users config file to determine where to export to
+
+# Check the current user is root
+if [ "$UID" != 0 ]; then
+	echo "You must be root to use this script.";
+	exit 1;
+fi;
+
+function usage() {
+	echo "Usage: braincase-export-backup <username>";
+}
+
+# Check what needs to be exported to run the appropriate function
+function do_exports() {
+	EXPORTS="$1";
+	FILENAME="$2";
+
+	# Dropbox?
+	echo $EXPORTS | grep dropbox > /dev/null
+	if [ "$?" = "0" ]; then # grep found dropbox
+		braincase-export-to-dropbox "$FILENAME";
+	fi;
+}
+
+# Check that there is a backup to export and give the location of it
+function get_latest_backup() {
+
+	# Check that a backup has run
+	if ! [ -f "$HOME/backups/latest" ]; then
+		return 1;
+	fi;
+
+	FILENAME=`cat $HOME/backups/latest`;
+
+	# Check the the backup file exists
+	if ! [ -f "$FILENAME" ]; then
+		return 2;
+	fi
+
+	echo $FILENAME;
+	return 0;
+}
+
+# Make sure a user was specified at command line
+if [ "$1" = "" ]; then
+	usage;
+	exit 1;
+fi;
+
+# Setup the variables
+USER="$1";
+HOME="/home/$USER";
+CONFIG="$HOME/.braincase/config";
+
+# Check if a user was given
+if [ "$USER" = "" ]; then
+	echo "Usage: braincase-export-backup <username>";
+	exit 1;
+fi;
+
+# Check the user exists
+bash user-exists $USER;
+if [ "$?" = "1" ]; then
+	echo "User $USER does not exist";
+	exit 1;
+fi;
+
+# Check home exists
+if ! [ -d $HOME ]; then
+	echo "Cannot find the homedir for $USER";
+	exit 1;
+fi;
+
+# Check if exporting backups is enabled
+if [ "$(braincase-config $USER/backups.export)" = "false" ]; then
+	echo "Backup exporting disabled for $USER";
+	exit 1;
+fi;
+
+# OK get the file we need to export
+FILENAME=`get_latest_backup`;
+RETURN_CODE="$?";
+
+if [ $RETURN_CODE = 1 ]; then
+	echo "No backup run for $USER yet.";
+	exit 1;
+elif [ $RETURN_CODE = 2 ]; then
+	echo "Cannot find the backup file to export ($FILENAME)";
+	exit 2;
+fi
+
+# Check what we need to export to
+do_exports `braincase-config $USER/backups.export_to` $FILENAME;

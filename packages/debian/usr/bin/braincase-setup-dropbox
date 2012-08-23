@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Author: Bhavic Patel, Robert McLeod
+# Date:   21 August 2012
+# Desc:	  Sets up Dropbox for the first time
+#		  Enables the user to export backups once done
+
+# Configure dropbox for the user
+python2.6 dropbox.py start -i
+python2.6 dropbox.py autostart
+
+
+# Once thats done enable backup exporting to dropbox
+braincase-config backups.export "true"
+braincase-config backups.export_to "dropbox"
