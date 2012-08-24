@@ -76,8 +76,8 @@ else
 fi;
 
 # Make the web directory
-if ! [ -d "$HOME/web" ]; then
-	mkdir "$HOME/web";
+if ! [ -d "$HOME/public_html" ]; then
+	mkdir "$HOME/public_html";
 fi;
 
 # Make the backups directory
