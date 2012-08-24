@@ -20,7 +20,7 @@ if [ "$UID" != 0 ]; then
 fi;
 
 # Print usage if requested
-if [ "$1" = "-h" ];
+if [ "$1" = "-h" ]; then
 	usage;
 	exit 0;
 fi;
@@ -88,7 +88,7 @@ fi;
 # Create the .braincase folder
 if ! [ -d "$HOME/.braincase" ]; then
 	mkdir "$HOME/.braincase";
-	cp /usr/bin/share/braincase/contrib/config "$HOME/.braincase/config";
+	cp /usr/share/braincase/contrib/config "$HOME/.braincase/config";
 	chmod og-rwx "$HOME/.braincase/config";
 fi;
 

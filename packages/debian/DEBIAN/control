@@ -5,7 +5,7 @@ Priority: optional
 Architecture: all
 Essential: no
 Depends: git, openssh-server, python2.6, ruby, python-gpgme, apache2
-Installed-Size: 16
+Installed-Size: 180
 Maintainer: James Skene <james.skene@aut.ac.nz>
 Homepage: https://github.com/hamstar/Braincase
 Description: A personal knowledge base system for expansion of the mind in a virtual space
