@@ -13,8 +13,6 @@ function usage() {
 
 function enableUserDir() {
 	/usr/sbin/a2enmod userdir
-	sed -i.bak 's/public_html/web/g' /etc/apache2/mods-enabled/userdir.conf  #Change folder to web
-
 	/etc/init.d/apache2 restart
 }
 
@@ -31,14 +29,13 @@ if [ "$1" = "-h" ]; then
 fi
 
 # Verify Apache2 IS installed
-if ![ -d /etc/apache2 ]; then
+if ! [ -d "/etc/apache2" ]; then
 	echo  "It seems Apache2 is not already installed!... Exiting";
 	exit 1;
 fi;
 
-
 #Enable per-user mod
-enableUserDir()
+enableUserDir;
 
 echo "Braincase webserver setup sucessfully";
 exit 0;
