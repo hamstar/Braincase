@@ -7,3 +7,5 @@
 # Enable automatic backups
 braincase-cron-backup -e
 
+# Enable the user dirs
+braincase-setup-userdir
