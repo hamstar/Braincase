@@ -8,7 +8,7 @@
 
 # Check that the temp file exists and clear it
 function init() {
-	if ! [ -d "/tmp/braincase" ]; then
+	if  [ ! -d "/tmp/braincase" ]; then
 		mkdir /tmp/braincase;
 	fi;
 
