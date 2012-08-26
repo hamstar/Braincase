@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-if `echo $UID`.chomp != 0
+if `whoami`.chomp != "root"
   puts "Need to be root to run this script"
   exit
 end
