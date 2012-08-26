@@ -48,7 +48,6 @@ else				# Write value to config
   yml[section][:"#{field}"] = new_value
   begin # try to save to disk
     File.open( config_file, 'w' ) { |f| f.write( yml.to_yaml ) }
-    puts new_value
   rescue StandardError => e
   	puts "An error occured: #{e}"
   end
