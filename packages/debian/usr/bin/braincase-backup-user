@@ -49,7 +49,7 @@ chown $USER:$USER $ZIPNAME;
 chmod 700 $ZIPNAME;
 
 # Don't need this anymore
-#rm -fr $BACKUP_DIR;
+rm -fr $BACKUP_DIR;
 
 # Update the latest backup file with this
 echo $ZIPNAME > $HOME/backups/latest;
