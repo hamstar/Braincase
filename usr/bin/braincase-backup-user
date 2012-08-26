@@ -36,7 +36,7 @@ ZIPNAME="$HOME/backups/$FOLDERNAME.zip";
 mkdir -p $BACKUP_DIR;
 
 # Tar up the home
-cd $HOME && tar -cvzf $BACKUP_DIR/home.tar.gz . --exclude="backups" >> $BACKUP_DIR/manifest.txt
+cd $HOME && tar -cvzf $BACKUP_DIR/home.tar.gz . --exclude="backups" --exclude="*[dD]ropbox" >> $BACKUP_DIR/manifest.txt
 
 # Record the md5sum
 cd $BACKUP_DIR && md5sum home.tar.gz > $BACKUP_DIR/md5sums
