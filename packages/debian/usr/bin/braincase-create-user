@@ -78,16 +78,19 @@ fi;
 # Make the web directory
 if ! [ -d "$HOME/public_html" ]; then
 	mkdir "$HOME/public_html";
+	chown $new_user:$new_user "$HOME/public_html";
 fi;
 
 # Make the backups directory
 if ! [ -d "$HOME/backups" ]; then
 	mkdir "$HOME/backups";
+	chown $new_user:$new_user "$HOME/backups";
 fi;
 
 # Create the .braincase folder
 if ! [ -d "$HOME/.braincase" ]; then
 	mkdir "$HOME/.braincase";
+	chown $new_user:$new_user "$HOME/.braincase";
 	cp /usr/share/braincase/contrib/config "$HOME/.braincase/config";
 	chown $new_user:$new_user "$HOME/.braincase/config";
 	chmod og-rwx "$HOME/.braincase/config";
