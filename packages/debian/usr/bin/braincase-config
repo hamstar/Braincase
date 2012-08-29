@@ -1,0 +1,54 @@
+#!/usr/bin/ruby
+
+# Author:	Robert McLeod
+# Date:		22 August 2012
+# Desc:		Reads and writes configuration of braincase
+
+# Usage: braincase-config [username/]section.field [new_value]
+
+require 'yaml'
+
+def check_user_exists(username)
+  if !File.read("/etc/passwd").include? username
+  	puts "User #{username} doesn't exist."
+  	exit
+  end
+end
+
+# Setup some variables
+username=`whoami`.chomp
+config_string=ARGV[0]
+new_value=ARGV[1]
+config_file="/home/#{username}/.braincase/config"
+
+# Check if a user was specified on command line
+if ( config_string.include? "/" ) && ( username == "root" )
+  username, config_string = config_string.match(/(.*)\/(.*)/)[1..2]
+  check_user_exists username
+  config_file="/home/#{username}/.braincase/config"
+else
+  config_string=config_string.gsub(/.*\//, '') # if not strip user
+end
+
+# Split up the config string
+section, field = config_string.split(".")
+
+# load the config
+begin
+  raw = File.read(config_file)
+  yml = YAML.load(raw)
+rescue StandardError => e
+  puts "An error occured: #{e}"
+  exit
+end
+
+if new_value.nil?	# Read value from config
+  puts yml[section][:"#{field}"]
+else				# Write value to config
+  yml[section][:"#{field}"] = new_value
+  begin # try to save to disk
+    File.open( config_file, 'w' ) { |f| f.write( yml.to_yaml ) }
+  rescue StandardError => e
+  	puts "An error occured: #{e}"
+  end
+end

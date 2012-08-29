@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Author:	Robert McLeod
+# Date: 	23 August 2012
+# Desc:		Post install script for Braincase
+
+# Enable automatic backups
+braincase-cron-backup -e
+
+# Enable the user dirs
+braincase-setup-userdir

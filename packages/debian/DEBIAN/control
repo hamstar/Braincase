@@ -1,0 +1,12 @@
+Package: braincase
+Version: 0.4.11
+Section: misc
+Priority: optional
+Architecture: all
+Essential: no
+Depends: git, openssh-server, python2.6, ruby, python-gpgme, apache2, zip
+Installed-Size: 176
+Maintainer: James Skene <james.skene@aut.ac.nz>
+Homepage: https://github.com/hamstar/Braincase
+Description: A personal knowledge base system for expansion of the mind in a virtual space
+	Very early version of a personal knowledge base system.  Emphasis is on automatic backups to external storage to protect the knowledge inside it.

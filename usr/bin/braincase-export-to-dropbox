@@ -1,0 +1,27 @@
+#!/usr/bin/ruby
+
+if `whoami`.chomp != "root"
+  puts "Need to be root to run this script"
+  exit
+end
+
+if ARGV[0].nil?
+  puts "Usage: braincase-export-to-dropbox <filename>"
+  exit
+end
+
+filepath = ARGV[0]
+home = filepath.match(/\/home\/[^\/]+/)[0]
+dropbox_dir = "#{home}/Dropbox"
+
+if !File.exists? filepath
+  puts "Unable to export to dropbox couldn't find the file given (#{filepath})"
+  exit
+end
+
+if !File.directory? dropbox_dir
+  puts "Unable to export to dropbox couldn't find the dropbox folder (#{dropbox_dir})"
+  exit
+end
+
+exec "ln -s #{filepath} #{dropbox_dir}/"
