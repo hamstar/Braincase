@@ -15,6 +15,11 @@ function enableUserDir() {
 	/usr/sbin/a2enmod userdir
 	/etc/init.d/apache2 restart
 }
+function enableSSL() {
+	/usr/sbin/a2enmod ssl
+	/usr/sbin/a2ensite default-ssl
+	/etc/init.d/apache2 restart
+}
 
 # Check the current user is root
 if [ "$UID" != 0 ]; then
@@ -36,6 +41,7 @@ fi;
 
 #Enable per-user mod
 enableUserDir;
+enableSSL;
 
 echo "Braincase webserver setup sucessfully";
 exit 0;
