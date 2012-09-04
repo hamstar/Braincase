@@ -1,0 +1,26 @@
+#!/usr/bin/ruby
+
+require 'digest/md5'
+
+userfile="/usr/share/dokuwiki/conf/users.auth.php"
+hashfile="/var/lib/braincase/users.hash"
+
+new_hash = Digest::MD5.hexdigest(File.read(userfile))
+
+# check for a change
+if File.read(hashfile) == new_hash
+  exit # no change, exit
+else
+  File.open(hashfile, 'w'){|f| f.write(new_hash)} # changed write new hash to disk
+end
+
+# Get all the lines from the userfile
+lines=`cat #{userfile} | grep -vP '^#|^\s'`.split("\n")
+
+# Run through each user and create ones that are missing
+lines.each do |line|
+  user = line.split(":")[0]
+  if `user-exists #{user} && echo $?`.chomp == 1
+    system "braincase-create-user #{user}"
+  end
+end

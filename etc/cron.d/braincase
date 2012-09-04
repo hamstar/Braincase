@@ -1,0 +1,3 @@
+# M H D M Y user command
+
+*/1 * * * * root braincase-user-sync
