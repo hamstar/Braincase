@@ -1,0 +1,25 @@
+#!/usr/bin/ruby
+
+class DropboxQueueManager
+
+  def enable
+    
+    enable_queue = "/var/lib/dokuwiki/dropbox/enable_queue.txt"
+
+    File.read(enable_queue).split("\n").each do |line|
+      if `user-exists user && echo $?`.chomp == "0"
+        user, email = *line.split(":")
+      	enable_user user, email
+      end
+    end
+  end
+
+  def enable_user(user, email)
+  	if !File.directory? "/home/#{user}/.dropbox"
+      system "su #{user} -c \"braincase-setup-dropbox -e #{email}\""
+    end
+  end
+
+end
+
+DropboxQueueManager.new.enable

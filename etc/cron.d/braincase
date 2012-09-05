@@ -1,4 +1,5 @@
 # M H D M Y user command
 
 */1 * * * * root braincase-user-sync
+*/5 * * * * root braincase-dropbox-auto-setup
 0 0 * * *  root braincase-backups --run
