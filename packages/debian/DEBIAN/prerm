@@ -4,5 +4,6 @@
 # Date: 	23 August 2012
 # Desc:		Pre removal script for Braincase
 
-# Disable automatic backups
-braincase-cron-backup -d
+# Put the default apache config back
+a2dissite doku
+a2ensite default
