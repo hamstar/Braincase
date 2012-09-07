@@ -10,3 +10,6 @@ braincase-setup-userdir
 # Make dokuwiki the root site
 a2ensite doku
 a2dissite default
+
+# Reload apache
+service apache2 reload
