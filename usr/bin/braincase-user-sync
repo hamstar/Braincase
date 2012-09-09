@@ -2,7 +2,7 @@
 
 require 'digest/md5'
 
-userfile="/usr/share/dokuwiki/conf/users.auth.php"
+userfile="/var/lib/dokuwiki/acl/users.auth.php"
 hashfile="/var/lib/braincase/users.hash"
 
 new_hash = Digest::MD5.hexdigest(File.read(userfile))
@@ -20,7 +20,7 @@ lines=`cat #{userfile} | grep -vP '^#|^\s'`.split("\n")
 # Run through each user and create ones that are missing
 lines.each do |line|
   user = line.split(":")[0]
-  if `user-exists #{user} && echo $?`.chomp == 1
+  if `user-exists #{user}; echo $?`.chomp == "1"
     system "braincase-create-user #{user}"
   end
 end

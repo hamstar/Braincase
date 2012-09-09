@@ -5,6 +5,8 @@
 # Desc:		Post install script for Braincase
 
 # Enable the user dirs
+
+# TODO: replace this with plain commands in this file
 braincase-setup-webserver
 
 # Make dokuwiki the root site
