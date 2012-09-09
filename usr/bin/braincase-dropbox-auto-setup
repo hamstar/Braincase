@@ -19,9 +19,7 @@ class DropboxQueueManager
     lines = f.read.split("\n")
     f.close
 
-    lines.each do |l| # loop through each line in the file
-      
-      user, email = *l.split(":") # TODO: delegte email getting braincase-setup-dropbox
+    lines.each do |user| # loop through each line in the file
       
       if `user-exists #{user}; echo $?`.chomp == "0" # check the user actually exists
 
@@ -30,11 +28,11 @@ class DropboxQueueManager
         if File.directory? "/home/#{user}/Dropbox" # is the Dropbox folder present?
 
           puts "dropbox setup for #{user} already"
-          remove_from_enable_queue l
+          remove_from_enable_queue user
           add_user_to_enabled_users user
         else
 
-          enable_user user, email # otherwise set them up
+          enable_user user # otherwise set them up
         end
       end
     end
@@ -42,16 +40,16 @@ class DropboxQueueManager
 
   private
 
-  def enable_user(user, email)
+  def enable_user(user)
     
-    system "su #{user} -c \"braincase-setup-dropbox -e #{email}\"" # TODO: delegte email getting braincase-setup-dropbox
+    system "su #{user} -c \"braincase-setup-dropbox -e\""
     puts "set up #{user}"
   end
 
-  def remove_from_enable_queue(line)
+  def remove_from_enable_queue(user)
     
     text = File.read(@queues[:enable])
-    text.gsub!("#{line}", "") # remove the user from the queue
+    text.gsub!(/^#{user}$/, "") # remove the user from the queue
     text.gsub!(/^$/, "") # clear blank lines
     puts "TEXT: #{text}"
     

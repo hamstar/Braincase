@@ -1,7 +1,17 @@
 #!/usr/bin/ruby
 
+# Author: Bhavic Patel, Robert McLeod
+# Date:   21 August 2012
+# Desc:	  Sets up Dropbox for the first time
+#		  Enables the user to export backups once done
+
 require 'net/smtp'
 
+userfile = "/etc/dokuwiki/users.auth.php"
+user = `echo $USER`.chomp
+email = File.read( userfile ).match(/^#{user}:.*/)[0].split(":")[3]
+
+# allows us to send emails
 def send_email(to,opts={})
   opts[:server]      ||= 'localhost'
   opts[:from]        ||= 'email@example.com'
@@ -22,11 +32,6 @@ END_OF_MESSAGE
   end
 end
 
-# Author: Bhavic Patel, Robert McLeod
-# Date:   21 August 2012
-# Desc:	  Sets up Dropbox for the first time
-#		  Enables the user to export backups once done
-
 # Configure dropbox for the user
 class DropboxSetup
 
@@ -46,7 +51,7 @@ class DropboxSetup
   end
 
   # Allows to email a user the url
-  def email(user,email)
+  def email(user, email)
     
     # get the hostname and setup dropbox
     hostname = `hostname -f`.chomp
@@ -95,8 +100,8 @@ class DropboxSetup
 end 
 
 # TODO: make this use the email address stored in the dokuwiki users file
-if ARGV[0] == "-e" && !ARGV[1].empty?
-	DropboxSetup.new.email `echo $USER`.chomp, ARGV[1]
+if ARGV[0] == "-e"
+	DropboxSetup.new.email user, email
 else
 	DropboxSetup.new.cli
 end
