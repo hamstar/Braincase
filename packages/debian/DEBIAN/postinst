@@ -7,10 +7,9 @@
 # Enable the user dirs
 
 # TODO: replace this with plain commands in this file
-a2enmod userdir
-a2enmod ssl
 
-#braincase-setup-webserver
+#Setup Per-User-Directory
+a2enmod userdir
 
 # Make dokuwiki the root site
 a2ensite doku
@@ -18,7 +17,6 @@ a2dissite default
 
 # Enable SSL
 a2enmod ssl
-a2ensite default-ssl
 
 # Reload apache
 service apache2 reload
