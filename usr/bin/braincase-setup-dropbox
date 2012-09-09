@@ -30,9 +30,13 @@ end
 # Configure dropbox for the user
 class DropboxSetup
 
-  def shell
+  # For running from the CLI
+  def cli
     
+    # set it up
     url = setup_dropbox
+
+    # Check what happened and print url if it worked
     if url.empty?
       puts "Failed to setup dropbox, you may want to try running the script again"
     else
@@ -41,10 +45,14 @@ class DropboxSetup
     end
   end
 
+  # Allows to email a user the url
   def email(user,email)
     
-    hostname = `hostname`.chomp
+    # get the hostname and setup dropbox
+    hostname = `hostname -f`.chomp
     url = setup_dropbox
+
+    # Check if it worked and send and email notifying accordingly
     if url.empty?
       subject = "Dropbox failed to be enabled on your Braincase Account"
       body = "Hi #{user}\n\nUnfortunately something went wrong while setting up"
@@ -54,11 +62,12 @@ class DropboxSetup
       subject = "Dropbox has been enabled on your Braincase Account"
       body = "Hi #{user}\n\nDropbox has been enabled on your Braincase account."
       body+= " You just need to enable it on your Dropbox account by visiting"
-      body+= " the following link in your browser:\n\n\t#{@url}"
+      body+= " the following link in your browser:\n\n\t#{url}"
     end
 
+    # all sorted, send the email
     send_email email, {
-  	  from: "braincase@#{@hostname}",
+  	  from: "braincase@#{hostname}",
   	  from_alias: "Braincase",
   	  subject: subject,
   	  body: body
@@ -67,29 +76,27 @@ class DropboxSetup
 
   private
 
+  # runs the setup for dropbox, gives back a url
   def setup_dropbox
 
-    system "echo 'y' | dropbox.py start -i > /dev/null"
-    system "dropbox.py start"
-
-    url=`dropbox.py autostart y`
+    # run the setup
+    system "echo 'y' | dropbox.py start -i > /dev/null" # this tells the installation "yes"
+    url=`dropbox.py start` # get the start message that provides teh URL
+    system "dropbox.py autostart y"
 
     # Return empty string if it failed to setup
     if !url.include? "https://www.dropbox.com/cli_link?host_id="
       return ""
     end
 
+    # extract and return the url
     url.split("\n")[1].chomp
   end
 end 
 
+# TODO: make this use the email address stored in the dokuwiki users file
 if ARGV[0] == "-e" && !ARGV[1].empty?
 	DropboxSetup.new.email `echo $USER`.chomp, ARGV[1]
 else
 	DropboxSetup.new.cli
 end
-	
-
-# Once thats done enable backup exporting to dropbox
-#system "braincase-config backups.export \"true\""
-#system "braincase-config backups.export_to \"dropbox\""
