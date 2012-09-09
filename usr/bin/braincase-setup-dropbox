@@ -1,4 +1,26 @@
-#!/bin/bash
+#!/usr/bin/ruby
+
+require 'net/smtp'
+
+def send_email(to,opts={})
+  opts[:server]      ||= 'localhost'
+  opts[:from]        ||= 'email@example.com'
+  opts[:from_alias]  ||= 'Example Emailer'
+  opts[:subject]     ||= "You need to see this"
+  opts[:body]        ||= "Important stuff!"
+
+  msg = <<END_OF_MESSAGE
+From: #{opts[:from_alias]} <#{opts[:from]}>
+To: <#{to}>
+Subject: #{opts[:subject]}
+
+#{opts[:body]}
+END_OF_MESSAGE
+
+  Net::SMTP.start(opts[:server]) do |smtp|
+    smtp.send_message msg, opts[:from], to
+  end
+end
 
 # Author: Bhavic Patel, Robert McLeod
 # Date:   21 August 2012
@@ -6,12 +28,68 @@
 #		  Enables the user to export backups once done
 
 # Configure dropbox for the user
-dropbox.py start -i;
-dropbox.py autostart y;
-sleep 5;
-dropbox.py start -i;
+class DropboxSetup
 
+  def shell
+    
+    url = setup_dropbox
+    if url.empty?
+      puts "Failed to setup dropbox, you may want to try running the script again"
+    else
+      puts "Link DropBox to this account by pasting the following link in your browser:"
+      puts url
+    end
+  end
+
+  def email(user,email)
+    
+    hostname = `hostname`.chomp
+    url = setup_dropbox
+    if url.empty?
+      subject = "Dropbox failed to be enabled on your Braincase Account"
+      body = "Hi #{user}\n\nUnfortunately something went wrong while setting up"
+      body+= " Dropbox on your Braincase account.  Please try to enable again "
+      body+= " or contact your deployment manager."
+    else
+      subject = "Dropbox has been enabled on your Braincase Account"
+      body = "Hi #{user}\n\nDropbox has been enabled on your Braincase account."
+      body+= " You just need to enable it on your Dropbox account by visiting"
+      body+= " the following link in your browser:\n\n\t#{@url}"
+    end
+
+    send_email email, {
+  	  from: "braincase@#{@hostname}",
+  	  from_alias: "Braincase",
+  	  subject: subject,
+  	  body: body
+    }
+  end
+
+  private
+
+  def setup_dropbox
+
+    system "echo 'y' | dropbox.py start -i > /dev/null"
+    system "dropbox.py start"
+
+    url=`dropbox.py autostart y`
+
+    # Return empty string if it failed to setup
+    if !url.include? "https://www.dropbox.com/cli_link?host_id="
+      return ""
+    end
+
+    url.split("\n")[1].chomp
+  end
+end 
+
+if ARGV[0] == "-e" && !ARGV[1].empty?
+	DropboxSetup.new.email `echo $USER`.chomp, ARGV[1]
+else
+	DropboxSetup.new.cli
+end
+	
 
 # Once thats done enable backup exporting to dropbox
-braincase-config backups.export "true"
-braincase-config backups.export_to "dropbox"
+#system "braincase-config backups.export \"true\""
+#system "braincase-config backups.export_to \"dropbox\""

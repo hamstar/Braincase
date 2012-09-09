@@ -4,7 +4,7 @@ Section: misc
 Priority: optional
 Architecture: all
 Essential: no
-Depends: git, openssh-server, python2.6, ruby, python-gpgme, apache2, zip, postfix
+Depends: git, openssh-server, python2.6, ruby, python-gpgme, apache2, zip, dokuwiki
 Installed-Size: 176
 Maintainer: James Skene <james.skene@aut.ac.nz>
 Homepage: https://github.com/hamstar/Braincase

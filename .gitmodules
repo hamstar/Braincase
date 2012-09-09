@@ -1,0 +1,3 @@
+[submodule "var/lib/dokuwiki/lib/plugins/autobackup"]
+	path = var/lib/dokuwiki/lib/plugins/autobackup
+	url = https://github.com/hamstar/dokuwiki-plugin-autobackup.git
