@@ -1,5 +1,9 @@
 #!/usr/bin/ruby
 
+# TODO: CHECK USER IS ROOT
+
+require 'logger'
+
 # TODO: Put these locations in a single config file
 # that caHn be read by both the scripts and the plugins
 queues = {
@@ -10,10 +14,15 @@ queues = {
 userfile = "/etc/dokuwiki/users.auth.php"
 passwd = File.read( userfile )
 
+logfile = "/var/log/braincase/autodropbox.log"
+log = Logger.new( logfile, "weekly" )
+log.level = Logger::INFO
+
 class DropboxQueueManager
 
-  def initialize(queues, passwd)
+  def initialize(queues, passwd, log)
     @queues = queues
+    @log = log
   end
 
   def enable
@@ -22,15 +31,17 @@ class DropboxQueueManager
     lines = f.read.split("\n")
     f.close
 
+    @log.info "#{lines.count} users in the queue"
+
     lines.each do |user| # loop through each line in the file
       
       if `user-exists #{user}; echo $?`.chomp == "0" # check the user actually exists
 
-        puts "#{user} exists"
+        @log.info "#{user} exists in the system"
 
         if File.directory? "/home/#{user}/Dropbox" # is the Dropbox folder present?
 
-          puts "dropbox setup for #{user} already"
+          @log.info "#{user} already setup for Dropbox"
           remove_from_enable_queue user
           add_user_to_enabled_users user
         else
@@ -44,10 +55,9 @@ class DropboxQueueManager
   private
 
   def enable_user(user)
-    
-    puts "set up #{user}"
     email = passwd.match(/^#{user}:.*/)[0].split(":")[3]
     system "su #{user} -c \"braincase-setup-dropbox -e #{email}\""
+    @log.info "#{user} setup for Dropbox access"
   end
 
   def remove_from_enable_queue(user)
@@ -77,5 +87,5 @@ class DropboxQueueManager
 
 end
 
-dqm = DropboxQueueManager.new(queues, passwd)
+dqm = DropboxQueueManager.new(queues, passwd, log)
 dqm.enable
