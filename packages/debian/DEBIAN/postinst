@@ -5,11 +5,7 @@
 # Desc:		Post install script for Braincase
 
 # Enable the user dirs
-<<<<<<< HEAD
-a2enmod userdir
-=======
 braincase-setup-webserver
->>>>>>> 723f0e32b17c16a7db15a078f0b3f767d3c55927
 
 # Make dokuwiki the root site
 a2ensite doku
@@ -21,3 +17,6 @@ a2ensite default-ssl
 
 # Reload apache
 service apache2 reload
+
+# Convenience link for dropbox
+ln -s /usr/bin/dropbox.py /usr/bin/dropbox

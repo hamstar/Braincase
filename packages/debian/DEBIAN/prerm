@@ -13,3 +13,6 @@ a2dissite default-ssl
 
 # Reload apache
 service apache2 reload
+
+# Unlink
+unlink /usr/bin/dropbox
