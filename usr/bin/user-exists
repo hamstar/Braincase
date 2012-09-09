@@ -3,10 +3,22 @@
 # Author: Robert McLeod
 # Date:   23 August 2012
 # Desc:	  Checks if a user exists
+#	  Exit status will be 0 if user exists 1 if not
+
+if [ "$1" = "" ]; then
+	echo "Usage: user-exists <user> [-v]";
+fi;
 
 user_exists=`grep "^$1:" /etc/passwd | wc -l`;
+
 if [ "$user_exists" = "0" ]; then
+	if [ "$2" = "-v" ]; then
+		echo "User $1 exists";
+	fi
 	exit 1;
 fi;
 
+if [ "$2" = "-v" ]; then
+	echo "User $user does not exist";
+fi
 exit 0;
