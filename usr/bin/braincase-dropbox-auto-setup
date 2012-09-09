@@ -7,9 +7,12 @@ queues = {
   :enabled => "/var/lib/dokuwiki/data/pages/braincase/dropbox/enabled_users.txt"
 }
 
+userfile = "/etc/dokuwiki/users.auth.php"
+passwd = File.read( userfile )
+
 class DropboxQueueManager
 
-  def initialize(queues)
+  def initialize(queues, passwd)
     @queues = queues
   end
 
@@ -42,8 +45,9 @@ class DropboxQueueManager
 
   def enable_user(user)
     
-    system "su #{user} -c \"braincase-setup-dropbox -e\""
     puts "set up #{user}"
+    email = passwd.match(/^#{user}:.*/)[0].split(":")[3]
+    system "su #{user} -c \"braincase-setup-dropbox -e #{email}\""
   end
 
   def remove_from_enable_queue(user)
@@ -73,5 +77,5 @@ class DropboxQueueManager
 
 end
 
-dqm = DropboxQueueManager.new(queues)
+dqm = DropboxQueueManager.new(queues, passwd)
 dqm.enable

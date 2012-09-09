@@ -7,9 +7,7 @@
 
 require 'net/smtp'
 
-userfile = "/etc/dokuwiki/users.auth.php"
 user = `echo $USER`.chomp
-email = File.read( userfile ).match(/^#{user}:.*/)[0].split(":")[3]
 
 # allows us to send emails
 def send_email(to,opts={})
@@ -100,8 +98,8 @@ class DropboxSetup
 end 
 
 # TODO: make this use the email address stored in the dokuwiki users file
-if ARGV[0] == "-e"
-	DropboxSetup.new.email user, email
+if ARGV[0] == "-e" && !ARGV[1].empty?
+	DropboxSetup.new.email user, ARGV[1]
 else
 	DropboxSetup.new.cli
 end
