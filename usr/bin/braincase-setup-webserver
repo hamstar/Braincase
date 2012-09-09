@@ -13,11 +13,9 @@ function usage() {
 
 function enableUserDir() {
 	/usr/sbin/a2enmod userdir
-	/etc/init.d/apache2 restart
 }
 function enableSSL() {
 	/usr/sbin/a2enmod ssl
-	/usr/sbin/a2ensite default-ssl
 	/etc/init.d/apache2 restart
 }
 
