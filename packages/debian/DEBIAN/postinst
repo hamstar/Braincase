@@ -7,7 +7,10 @@
 # Enable the user dirs
 
 # TODO: replace this with plain commands in this file
-braincase-setup-webserver
+a2enmod userdir
+a2enmod ssl
+
+#braincase-setup-webserver
 
 # Make dokuwiki the root site
 a2ensite doku
