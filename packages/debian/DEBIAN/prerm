@@ -7,6 +7,9 @@
 # Put the default apache config back
 a2dissite doku
 a2ensite default
+a2dismod userdir
+a2dismod ssl
+a2dissite default-ssl
 
 # Reload apache
 service apache2 reload

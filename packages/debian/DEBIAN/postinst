@@ -5,11 +5,15 @@
 # Desc:		Post install script for Braincase
 
 # Enable the user dirs
-braincase-setup-userdir
+a2enmod userdir
 
 # Make dokuwiki the root site
 a2ensite doku
 a2dissite default
+
+# Enable SSL
+a2enmod ssl
+a2ensite default-ssl
 
 # Reload apache
 service apache2 reload
