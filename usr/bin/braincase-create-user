@@ -37,8 +37,8 @@ if [ "$new_user" = "" ]; then
 fi;
 
 # Check if the user exists
-user_exists="$(cat /etc/passwd|grep $new_user|wc -l)";
-if [ "$user_exists" = "1" ]; then
+user-exists $new_user;
+if [ "$?" = "0" ]; then
 	echo "User $new_user already exists";
 	exit 1;
 fi;
