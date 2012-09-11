@@ -23,3 +23,7 @@ service apache2 reload
 
 # Convenience link for dropbox
 ln -s /usr/bin/dropbox.py /usr/bin/dropbox
+
+# Need to make the cron script root only
+chown root:root /etc/cron.d/braincase
+chmod og-rwx /etc/cron.d/braincase
