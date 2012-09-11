@@ -45,7 +45,7 @@ fi;
 
 # Create the user
 echo -n "Creating new Braincase user $new_user... ";
-USERADD_OUTPUT=`useradd -s /bin/bash -m -d /home/$new_user $new_user 2>&1`;
+USERADD_OUTPUT=`/usr/bin/useradd -s /bin/bash -m -d /home/$new_user $new_user 2>&1`;
 
 # Check that all went well
 if [ "$?" = "0" ]; then
