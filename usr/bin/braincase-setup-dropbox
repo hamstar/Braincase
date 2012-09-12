@@ -5,7 +5,7 @@
 # Desc:	  Sets up Dropbox for the first time
 #		  Enables the user to export backups once done
 
-$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib"))
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
 require 'logger'
 require 'braincase/utils'

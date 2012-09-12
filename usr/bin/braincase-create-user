@@ -7,7 +7,7 @@
 #			- use useradd to create a new user on the system
 #			- create a bare git repository in the users home
 
-$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib"))
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
 require 'braincase/utils'
 require 'braincase/user'
