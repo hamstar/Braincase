@@ -9,7 +9,7 @@ module Braincase
   def Braincase.config(section='')
     
     raw = File.read( CONFIG_FILE )
-    yml = YAML.load( raw )
+    yml = YAML.load( raw )["braincase"]
 
     # Return the section or the whole thing
     if !section.empty?

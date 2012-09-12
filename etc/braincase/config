@@ -1,5 +1,13 @@
 ---
-usersync:
+braincase:
   :users_file: "/etc/dokuwiki/users.auth.php"
-  :users_hash: "/var/lib/braincase/users.hash"
-  :log: "/var/log/braincase/usersync.log"
+
+  :usersync:
+    :users_hash: "/var/lib/braincase/users.hash"
+    :log: "/var/log/braincase/usersync.log"
+
+  :autodropbox:
+    :log: "/var/log/braincase/autodropbox.log"
+    :queues:
+      :enable: "/var/lib/dokuwiki/data/pages/braincase/dropbox/enable_queue.txt"
+      :enabled: "/var/lib/dokuwiki/data/pages/braincase/dropbox/enabled_users.txt"
