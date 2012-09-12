@@ -47,26 +47,22 @@ module Braincase
     def create
 
       add_to_linux
-      setup_repo
+      setup_bare_repo
       add_userdir
       add_braincase
       add_backups
+      setup_local_repo
     end
 
     def add_to_linux
-      if in_linux
-        return
-      end
+      if !in_linux
+        output = `/usr/sbin/useradd -s /bin/bash -md #{@home} #{@name} 2>&1`
 
-      output = `/usr/sbin/useradd -s /bin/bash -md #{@home} #{@name} 2>&1`
-      if !$?.to_s.include? "exit 0"
-        raise RuntimeError, "Could not add user to linux (#{$?}): #{output}"
+        # Die unless the user was created or exists
+        if $?.exitstatus != 0 and $?.exitstatus != 9
+          raise RuntimeError, "Could not add user to linux (#{$?.exitstatus}): #{output}"
+        end
       end
-    end
-
-    def setup_repo
-      setup_bare_repo
-      setup_local_repo
     end
 
     def setup_bare_repo
@@ -82,8 +78,16 @@ module Braincase
         run "cd ~ && git init"
         run "cd ~ && git remote add origin ~/repo.git"
         add_ignore_file
+        do_first_commit
+      end
+    end
+
+    def do_first_commit
+      if File.directory? "#{@home}/.git"
         run "cd ~ && git add . && git commit -m 'first commit'"
-        run "cd ~ && git push origin master"
+        run "cd ~ && git push origin master 2>&1 > /dev/null"
+      else
+        @log.error "Couldn't do the first commit as the repo wasn't created!"
       end
     end
 
@@ -119,7 +123,7 @@ module Braincase
 
     def add_backups
       if !File.directory? "#{@home}/backups"
-        run "mkdir #{@home}/.backups"
+        run "mkdir #{@home}/backups"
       end
     end
   end
