@@ -34,7 +34,7 @@ begin
 
     puts dropbox.setup user, :cli
   end
-rescue "Error" => e
+rescue RuntimeError => e
   log.error e.message
   puts e.message
 end

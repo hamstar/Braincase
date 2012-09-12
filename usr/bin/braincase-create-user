@@ -9,6 +9,7 @@
 
 $LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
+require 'logger'
 require 'braincase/utils'
 require 'braincase/user'
 
@@ -22,14 +23,14 @@ end
 # Show the usage if username was ommitted
 abort usage if ARGV[0].nil?
 
-log = Logger::new(Braincase::config("create-user")[:log])
+log = Logger.new(Braincase.config[:createuser][:log])
 log.level = Logger::INFO
 
 begin
   user = Braincase::User.new ARGV[0]
   log.info "Creating user #{user.name}"
   user.create
-rescue "Error" => e
+rescue RuntimeError => e
   log.error e.message
   puts e.message
 end

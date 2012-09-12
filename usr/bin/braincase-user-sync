@@ -10,7 +10,7 @@ require 'braincase/user'
 
 abort "Must be root" if !Braincase.is_root?
 
-config = Braincase::config
+config = Braincase.config
 log = Logger.new( config[:usersync][:log], "weekly" )
 log.level = Logger::INFO
 

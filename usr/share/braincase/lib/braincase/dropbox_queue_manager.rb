@@ -21,7 +21,7 @@ module Braincase
 
           user_exists_in_linux user[:name]
           setup_dropbox_and_email user[:name] # otherwise set them up
-        rescue "Error" => e
+        rescue RuntimeError => e
 
           puts e.message
           @log.error e.message
@@ -45,7 +45,7 @@ module Braincase
     def user_exists_in_linux(user)
 
       if `user-exists #{user}; echo $?`.chomp != "0" # check the user actually exists
-        raise "Error", "#{user} has not been created in linux, skipping..."
+        raise RuntimeError, "#{user} has not been created in linux, skipping..."
       end
 
       @log.info "#{user} exists in linux"

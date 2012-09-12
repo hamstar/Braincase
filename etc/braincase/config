@@ -2,6 +2,9 @@
 braincase:
   :users_file: "/etc/dokuwiki/users.auth.php"
 
+  :createuser:
+    :log: "/var/log/braincase/createuser.log"
+
   :usersync:
     :users_hash: "/var/lib/braincase/users.hash"
     :log: "/var/log/braincase/usersync.log"

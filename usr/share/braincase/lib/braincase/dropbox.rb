@@ -23,7 +23,7 @@ module Braincase
       when :email
         setup_email
       else
-        raise "Error", "Unknown setup type #{type}"
+        raise RuntimeError, "Unknown setup type #{type}"
       end
     end
 
@@ -70,7 +70,7 @@ module Braincase
       while !url.include? "https://www.dropbox.com/cli_link?host_id=" do
         sleep 3
         url=`dropbox.py start` # get the start message that provides the URL
-        raise "Error", "Dropbox URL unavailable" if count == 2
+        raise RuntimeError, "Dropbox URL unavailable" if count == 2
       end
 
       # extract and return the url

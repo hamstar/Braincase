@@ -6,17 +6,10 @@ module Braincase
   CONFIG_FILE = "/etc/braincase/config"
   HOSTNAME = `hostname -f`.chomp
 
-  def Braincase.config(section='')
+  def Braincase.config
     
     raw = File.read( CONFIG_FILE )
-    yml = YAML.load( raw )["braincase"]
-
-    # Return the section or the whole thing
-    if !section.empty?
-      yml[section]
-    else
-  	  yml
-  	end
+    YAML.load( raw )["braincase"]
   end
 
   def Braincase.is_root?

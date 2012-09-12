@@ -7,7 +7,7 @@ module Braincase
     def initialize(name)
       
       if name == "root"
-        raise "Error", "Cannot use root user"
+        raise RuntimeError, "Cannot use root user"
       end
 
       @name=name
@@ -34,7 +34,7 @@ module Braincase
 
     def in_dokuwiki
       begin
-        return File.read(Braincase::PASSWD).match(/^#{user}:/)
+        return File.read(Braincase.config[:users_file]).match(/^#{user}:/)
       rescue
         return false
       end
@@ -60,7 +60,7 @@ module Braincase
 
       output = `/usr/sbin/useradd -s /bin/bash -md #{@home} #{@name} 2>&1`
       if !$?.to_s.include? "exit 0"
-        raise "Error", "Could not add user to linux (#{$?}): #{output}"
+        raise RuntimeError, "Could not add user to linux (#{$?}): #{output}"
       end
     end
 
