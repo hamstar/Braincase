@@ -19,7 +19,7 @@ end
 user = Braincase::User.new `echo $USER`.chomp
 log = Logger.new("#{user.home}/.braincase/dropboxsetup.log")
 log.level = Logger::INFO
-db = Braincase::Dropbox.new log
+dropbox = Braincase::Dropbox.new log
 
 begin
   if ARGV[0] == "-e"
@@ -29,10 +29,10 @@ begin
     end
     
     user.email = ARGV[1]
-    db.setup user, :email
+    dropbox.setup user, :email
   else
 
-    puts db.setup user, :cli
+    puts dropbox.setup user, :cli
   end
 rescue "Error" => e
   log.error e.message
