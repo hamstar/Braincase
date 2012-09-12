@@ -22,11 +22,7 @@ module Braincase
       lines.each do |line|
         name = line.split(":")[0]
         user = @user.build line
-
-        if !user.create
-          @log.error "Could not create user #{name} in linux"
-        end
-
+        user.create
         @log.info "Created #{user} in system"
       end
     end

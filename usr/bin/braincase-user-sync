@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
-$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/classes"))
-$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/helpers"))
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib"))
 
 require 'digest/md5'
 require 'logger'
@@ -9,10 +8,7 @@ require 'braincase/utils'
 require 'braincase/user_sync_manager'
 require 'braincase/user'
 
-if !Braincase.is_root?
-  puts "This script must be run as root"
-  exit
-end
+abort "Must be root" if !Braincase.is_root?
 
 config = Braincase::config("usersync")
 log = Logger.new( config[:log], "weekly" )
