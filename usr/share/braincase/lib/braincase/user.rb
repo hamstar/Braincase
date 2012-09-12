@@ -1,7 +1,7 @@
 module Braincase
   class User
 
-    attr_reader :name
+    attr_reader :name, :home
     attr_accessor :email, :full_name, :groups
 
   	def initialize(name)
