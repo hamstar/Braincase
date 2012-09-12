@@ -1,0 +1,5 @@
+---
+usersync:
+  :users_file: "/etc/dokuwiki/users.auth.php"
+  :users_hash: "/var/lib/braincase/users.hash"
+  :log: "/var/log/braincase/usersync.log"
