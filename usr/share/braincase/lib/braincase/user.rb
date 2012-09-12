@@ -22,6 +22,8 @@ module Braincase
       u.email = vars[3]
       u.full_name = vars[2]
       u.groups = vars[4]
+
+      u
     end
 
     def in_linux
@@ -42,6 +44,10 @@ module Braincase
 
     def has_repo
       File.directory? "#{@home}/repo.git"
+    end
+
+    def has_braincase
+      File.directory? "#{@home}/.braincase"
     end
 
     def create
@@ -116,7 +122,7 @@ module Braincase
     end
 
     def add_braincase
-      if !File.directory? "#{@home}/.braincase"
+      if !has_braincase
         run "mkdir #{@home}/.braincase"
       end
     end

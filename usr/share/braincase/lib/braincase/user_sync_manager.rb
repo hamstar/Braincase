@@ -13,31 +13,30 @@ module Braincase
 
       return false if !users_changed?
 
-      # Get all the lines from the userfile
-      lines=`cat #{userfile} | grep -vP '^#|^\s'`.split("\n")
-
-      @log.info "#{lines.count} users in the userfile"
+      @log.info "The user file has changed, doing a sync"
 
       # Run through each user and create ones that are missing
-      lines.each do |line|
-        name = line.split(":")[0]
-        user = @user.build line
-        user.create
-        @log.info "Created #{user} in system"
+      File.read(@config[:users_file]).each do |line|
+        begin
+          user = @user.build line
+          next if user.has_braincase
+          user.create
+          @log.info "Created #{user.name} in system"
+        rescue RuntimeError => e
+          @log.error e.message
+        end
       end
+
+      # write new hash to disk
+      File.open(@config[:usersync][:users_hash], 'w'){|f| f.write(@new_hash)}
     end
 
     def users_changed?
 
       old_hash = File.read( @config[:usersync][:users_hash] )
-      new_hash = @md5.hexdigest(File.read(@config[:users_file]))
+      @new_hash = @md5.hexdigest(File.read(@config[:users_file]))
       
-      if old_hash != new_hash
-        return false
-      end
-
-      File.open(@config[:usersync][:users_hash], 'w'){|f| f.write(new_hash)} # changed write new hash to disk
-        @log.info "The user file has changed, doing a sync"
+      old_hash != @new_hash
     end
   end
 end
