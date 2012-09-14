@@ -1,26 +1,35 @@
 module Braincase
   class DropboxQueueManager
 
-    def initialize(queues, passwd, log)
+    def initialize(queues, users, log, dropbox)
       @queues = queues
-      @passwd = passwd
+      @users = users
       @log = log
+      @dropbox = dropbox
     end
 
     def enable
 
       # loop through each line in the file
-      get_lines_from(@queues[:enable]).each do |line|
-        
-        user = make_user line
+      File.read(@queues[:enable]).each do |name|
 
         begin
 
-          next if dropbox_enabled_for user[:name]
-          next if user[:emailed]
+          next if name.empty?
+          next if name.include? "emailed" # user already been emailed
 
-          user_exists_in_linux user[:name]
-          setup_dropbox_and_email user[:name] # otherwise set them up
+          user = @user.build @users.match(/^#{name}:.*$/)[0] # get the user from the user list
+
+          next if !user.in_linux # don't try to setup dropbox if no linux user
+          
+          # user enabled? remove from queue
+          if @dropbox.enabled_for user
+            add_to_queue :enabled
+            remove_from_queue :enable
+            next
+          end
+
+          setup_dropbox user
         rescue RuntimeError => e
 
           puts e.message
@@ -29,115 +38,70 @@ module Braincase
       end
     end
 
+    def add_to_queue(queue, user)
+      case queue
+      when :enabled
+        add_to_enabled user.name
+        @log.info "#{user.name} added to enabled queue"
+      when :emailed
+        set_as_emailed user.name
+        @log.info "#{user.name} added to emailed queue"
+      end
+    end
+
+    def remove_from_queue(queue, user)
+      case queue
+      when :enable
+        remove_from_enable_queue user.name
+        @log.info "#{user.name} removed from enable queue"
+      end
+    end
+
     private
 
-    def get_lines_from(queue)
+    def setup_dropbox(user)
 
-      f = File.open(queue, 'r') # open the queue
-      lines = f.read.split("\n")
-      f.close
+      output=`su #{user.name} -c "braincase-setup-dropbox -e #{user.email}"`
 
-      @log.info "#{lines.count} users in the queue"
-
-      lines
-    end
-
-    def user_exists_in_linux(user)
-
-      if `user-exists #{user}; echo $?`.chomp != "0" # check the user actually exists
-        raise RuntimeError, "#{user} has not been created in linux, skipping..."
+      if $?.exitstatus != 0
+        output.split("\n").each do {|line| @log.error line }
+        raise RuntimeError, "Running braincase-setup-dropbox for #{user.name} failed with error #{$?.exitstatus}"
       end
 
-      @log.info "#{user} exists in linux"
+      add_to_queue :emailed, user
     end
 
-    def dropbox_enabled_for(user)
-
-      if File.directory? "/home/#{user}/Dropbox" # is the Dropbox folder present?
-        
-        @log.info "#{user} already setup for Dropbox"
-        set_dropbox_status user, "enabled"
-        return true
-      end
-
-      false
-    end
-
-    def make_user(line)
-      user = {
-        name: line,
-        emailed: false
-      }
-
-      if line.include? "emailed"
-        user[:name] = line.split(" ")[0]
-        user[:emailed] = true
-      end
-
-      user
-    end
-
-    def setup_dropbox_and_email(user)
-
-      if email = @passwd.match(/^#{user}:.*/)[0].split(":")[3]
-        
-        system "su #{user} -c \"braincase-setup-dropbox -e #{email}\""
-        set_dropbox_status user, "queued"
-        @log.info "#{user} setup for Dropbox access"
-      else
-
-        raise "error", "Email could not be found for #{user}"
-      end
-    end
-
-    def remove_from_enable_queue(user)
+    def remove_from_enable_queue(name)
       
       text = File.read(@queues[:enable])
-      text.gsub!(/^#{user}$/, "") # remove the user from the queue
+      text.gsub!(/^#{name}$/, "") # remove the user from the queue
       text.gsub!(/^$/, "") # clear blank lines
       puts "TEXT: #{text}"
       
       File.open(@queues[:enable], 'w') do |f|
-        f.write text
+        f.puts text
       end
     end
 
-    def set_dropbox_status(user, status)
-
-      case status
-        when "queued"
-          set_user_as_emailed user
-        when "enabled"
-          remove_from_enable_queue user
-          add_user_to_enabled_users user
-        else
-      end
-    end
-
-    def set_user_as_emailed(user)
+    def set_as_emailed(name)
       
       text = File.read(@queues[:enable])
-      text.gsub!(/^#{user}$/, "#{user} emailed")
+      text.gsub!(/^#{name}$/, "#{name} emailed")
 
       File.open(@queues[:enable], "w") do |f|
         f.puts text
       end
-
-      @log.info "#{user} was emailed"
     end
 
-    def add_user_to_enabled_users(user)
+    def add_to_enabled(name)
       
       # drop out if user already enabled
-      if File.read(@queues[:enabled]).include? "#{user}\n"
-        return;
-      end
+      return if File.read(@queues[:enabled]).include? "#{name}\n"
 
       # otherwise add the user to the file
       File.open(@queues[:enabled], "a") do |f|
-        f.puts user
+        f.puts name
       end
     end
-
   end
 end

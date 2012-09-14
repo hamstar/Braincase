@@ -5,16 +5,17 @@ $LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 require 'logger'
 require 'braincase/utils'
 require 'braincase/user'
+require 'braincase/dropbox'
 require 'braincase/dropbox_queue_manager'
 
 abort "Must be root" if !Braincase.is_root?
 
 config = Braincase.config
 queues = config[:autodropbox][:queues]
-passwd = File.read( config[:user_file] )
+users = File.read( config[:users_file] )
 
 log = Logger.new( config[:autodropbox][:log], "weekly" )
 log.level = Logger::INFO
 
-dqm = Braincase::DropboxQueueManager.new(queues, passwd, log)
+dqm = Braincase::DropboxQueueManager.new(queues, users, log, Braincase::Dropbox)
 dqm.enable
