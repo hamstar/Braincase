@@ -16,7 +16,7 @@ module Braincase
       @log.info "The user file has changed, doing a sync"
 
       # Run through each user and create ones that are missing
-      File.read(@config[:users_file]).each do |line|
+      File.open(@config[:users_file],"r").each do |line|
         begin
           user = @user.build line
           next if user.has_braincase
