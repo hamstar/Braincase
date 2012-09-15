@@ -83,6 +83,8 @@ module Braincase
       if !File.directory? "#{@home}/.git"
         run "cd ~ && git init"
         run "cd ~ && git remote add origin ~/repo.git"
+        run "cd ~ && git config --global user.email \"#{@email}\""
+        run "cd ~ && git config --global user.name \"#{@full_name}\""
         add_ignore_file
         do_first_commit
       end
