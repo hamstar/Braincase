@@ -10,4 +10,4 @@ $conf['license'] = 'cc-by-sa';
 #$conf['lang'] = 'en';
 $conf['useacl'] = 1;
 $conf['superuser'] = '@admin';
-$conf['template'] = 'monobook';
+$conf['template'] = 'taratasy';
