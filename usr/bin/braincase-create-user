@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/ruby
 
 # Author: Robert McLeod
 # Date:   16 August 2012
@@ -7,95 +7,30 @@
 #			- use useradd to create a new user on the system
 #			- create a bare git repository in the users home
 
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
+
+require 'logger'
+require 'braincase/utils'
+require 'braincase/user'
+
+abort "Must be root" if !Braincase.is_root?
+
 # The usage message
-function usage() {
-	echo "Usage: create-braincase-user <name>";
-	echo "\t- creates and sets up a user for Braincase";
-}
+def usage
+  "Usage: create-braincase-user <name>";
+end
 
-# Check the current user is root
-if [ "$UID" != 0 ]; then
-	echo "You must be root to use this program.";
-	exit 1;
-fi;
+# Show the usage if username was ommitted
+abort usage if ARGV[0].nil?
 
-# Print usage if requested
-if [ "$1" = "-h" ]; then
-	usage;
-	exit 0;
-fi;
+log = Logger.new(Braincase.config[:createuser][:log])
+log.level = Logger::INFO
 
-# The new user
-new_user=$1;
-HOME="/home/$new_user";
-
-# Verify that a user was given
-if [ "$new_user" = "" ]; then
-	echo "No username given.";
-	usage;
-	exit 1;
-fi;
-
-# Check if the user exists
-user-exists $new_user;
-if [ "$?" = "0" ]; then
-	echo "User $new_user already exists";
-	exit 1;
-fi;
-
-# Create the user
-echo -n "Creating new Braincase user $new_user... ";
-USERADD_OUTPUT=`/usr/bin/useradd -s /bin/bash -m -d /home/$new_user $new_user 2>&1`;
-
-# Check that all went well
-if [ "$?" = "0" ]; then
-	echo "done";
-else
-	echo "failed ($?):";
-	echo $USERADD_OUTPUT;
-	exit 1;
-fi;
-
-# Check if the repo exists
-if [ -d "/home/$new_user/repo" ]; then
-	echo "Repository already exists";
-	exit 1;
-fi;
-
-# Create the repo
-echo -n "Creating a personal repository for $new_user..."
-SU_OUTPUT=`su $new_user -c "mkdir ~/repo && git init --bare ~/repo" 2>&1`;
-
-# Check that all went well
-if [ "$?" = "0" ]; then
-	echo "done";
-else
-	echo "failed ($?):";
-	echo $SU_OUTPUT;
-	exit 1;
-fi;
-
-# Make the web directory
-if ! [ -d "$HOME/public_html" ]; then
-	mkdir "$HOME/public_html";
-	chown $new_user:$new_user "$HOME/public_html";
-fi;
-
-# Make the backups directory
-if ! [ -d "$HOME/backups" ]; then
-	mkdir "$HOME/backups";
-	chown $new_user:$new_user "$HOME/backups";
-fi;
-
-# Create the .braincase folder
-if ! [ -d "$HOME/.braincase" ]; then
-	mkdir "$HOME/.braincase";
-	chown $new_user:$new_user "$HOME/.braincase";
-	cp /usr/share/braincase/contrib/config "$HOME/.braincase/config";
-	chown $new_user:$new_user "$HOME/.braincase/config";
-	chmod og-rwx "$HOME/.braincase/config";
-fi;
-
-echo
-echo "Braincase user $new_user setup successfully.";
-exit 0;
+begin
+  user = Braincase::User.new ARGV[0]
+  log.info "Creating user #{user.name}"
+  user.create
+rescue RuntimeError => e
+  log.error e.message
+  puts e.message
+end

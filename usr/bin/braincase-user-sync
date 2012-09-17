@@ -1,37 +1,22 @@
 #!/usr/bin/ruby
 
-# TODO: admin only!
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
 require 'digest/md5'
 require 'logger'
+require 'braincase/utils'
+require 'braincase/user_sync_manager'
+require 'braincase/user'
 
-logfile = "/var/log/braincase/usersync.log"
-log = Logger.new( logfile, "weekly" )
+abort "Must be root" if !Braincase.is_root?
+
+config = Braincase.config
+log = Logger.new( config[:usersync][:log], "weekly" )
 log.level = Logger::INFO
 
-userfile="/var/lib/dokuwiki/acl/users.auth.php"
-hashfile="/var/lib/braincase/users.hash"
-new_hash = Digest::MD5.hexdigest(File.read(userfile))
+log.info "Starting sync"
 
-# check for a change
-if File.read(hashfile) == new_hash
-  exit # no change, exit
-else
-  File.open(hashfile, 'w'){|f| f.write(new_hash)} # changed write new hash to disk
-  log.info "The user file changed"
-end
+usm = Braincase::UserSyncManager.new( config, log, Braincase::User, Digest::MD5 )
+usm.sync
 
-# Get all the lines from the userfile
-lines=`cat #{userfile} | grep -vP '^#|^\s'`.split("\n")
-
-log.info "#{lines.count} users in the userfile"
-
-# Run through each user and create ones that are missing
-lines.each do |line|
-  user = line.split(":")[0]
-  if `user-exists #{user}; echo $?`.chomp == "1"
-    system "braincase-create-user #{user}"
-    # TODO: postcondition
-    log.info "Created #{user} in system"
-  end
-end
+log.info "Finished sync"
