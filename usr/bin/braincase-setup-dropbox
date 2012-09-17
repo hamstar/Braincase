@@ -34,6 +34,9 @@ begin
 
     puts dropbox.setup user, :cli
   end
+rescue Errno::ECONNREFUSED
+  log.error "Couldn't connect to email server"
+  puts "Couldn't connect to email server"
 rescue RuntimeError => e
   log.error e.message
   puts e.message

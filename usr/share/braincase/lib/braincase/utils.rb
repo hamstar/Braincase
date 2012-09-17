@@ -13,7 +13,7 @@ module Braincase
   end
 
   def Braincase.is_root?
-    `echo $USER`.chomp == "root"
+    Process.uid == 0
   end
 
   # allows us to send emails

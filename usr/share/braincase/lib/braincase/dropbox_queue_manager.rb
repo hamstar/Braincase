@@ -1,9 +1,10 @@
 module Braincase
   class DropboxQueueManager
 
-    def initialize(queues, users, log, dropbox)
+    def initialize(queues, users, log, dropbox, user)
       @queues = queues
       @users = users
+      @user = user
       @log = log
       @dropbox = dropbox
     end
@@ -11,9 +12,11 @@ module Braincase
     def enable
 
       # loop through each line in the file
-      File.read(@queues[:enable]).each do |name|
+      File.open(@queues[:enable], "r").each do |name|
 
         begin
+
+          name.chomp!
 
           next if name.empty?
           next if name.include? "emailed" # user already been emailed
@@ -24,12 +27,18 @@ module Braincase
           
           # user enabled? remove from queue
           if @dropbox.enabled_for user
+            @log.info "Dropbox is enabled for #{user.name}, removing from queue"
             add_to_queue :enabled
             remove_from_queue :enable
             next
           end
 
+          @log.info "Setting up dropbox for #{user.name}"
           setup_dropbox user
+
+        rescue NoMethodError => e
+          
+          log.error "User #{name} was in the enable queue but not in the userlist"
         rescue RuntimeError => e
 
           puts e.message
@@ -64,7 +73,7 @@ module Braincase
       output=`su #{user.name} -c "braincase-setup-dropbox -e #{user.email}"`
 
       if $?.exitstatus != 0
-        output.split("\n").each do {|line| @log.error line }
+        output.split("\n").each {|line| @log.error line }
         raise RuntimeError, "Running braincase-setup-dropbox for #{user.name} failed with error #{$?.exitstatus}"
       end
 
