@@ -27,3 +27,8 @@ ln -s /usr/bin/dropbox.py /usr/bin/dropbox
 # Need to make the cron script root only
 chown root:root /etc/cron.d/braincase
 chmod og-rwx /etc/cron.d/braincase
+
+# Remove this configuration file that stuffs everything up
+if [ -f /etc/apache2/conf.d/dokuwiki.conf ]; then
+	unlink /etc/apache2/conf.d/dokuwiki.conf
+fi;
