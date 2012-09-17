@@ -12,6 +12,7 @@ module Braincase
 
       @name=name
       @home="/home/#{name}"
+      @repo="#{home}/#{name}.git"
     end
 
     # Build a user a line in the user_file
@@ -43,7 +44,7 @@ module Braincase
     end
 
     def has_repo
-      File.directory? "#{@home}/repo.git"
+      File.directory? @repo
     end
 
     def has_braincase
@@ -73,8 +74,8 @@ module Braincase
 
     def setup_bare_repo
       if !has_repo
-        run "mkdir ~/repo.git"
-        run "cd ~/repo.git && git init --bare"
+        run "mkdir #{@repo}"
+        run "cd #{@repo} && git init --bare"
         add_hook_to_repo
       end
     end
@@ -82,7 +83,7 @@ module Braincase
     def setup_local_repo
       if !File.directory? "#{@home}/.git"
         run "cd ~ && git init"
-        run "cd ~ && git remote add origin ~/repo.git"
+        run "cd ~ && git remote add origin #{@repo}"
         run "cd ~ && git config --global user.email \"#{@email}\""
         run "cd ~ && git config --global user.name \"#{@full_name}\""
         add_ignore_file
@@ -105,8 +106,9 @@ module Braincase
     end
 
     def add_hook_to_repo
-      `cp /usr/share/braincase/contrib/post-receive.example #{@home}/repo.git/hooks`
-      own_file "#{@home}/repo.git/hooks"
+      `cp /usr/share/braincase/contrib/post-receive.example #{@repo}/hooks`
+      own_file "#{@repo}/hooks -R"
+      `chmod a+x #{@repo}/hooks -R`
     end
 
     def own_file(file)
@@ -120,6 +122,7 @@ module Braincase
     def add_userdir
       if !File.directory? "#{@home}/public_html"
         run "mkdir #{@home}/public_html"
+        run "touch #{@home}/public_html/.gitkeep"
       end
     end
 
