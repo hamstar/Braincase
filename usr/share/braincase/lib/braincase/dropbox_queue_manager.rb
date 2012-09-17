@@ -38,7 +38,7 @@ module Braincase
 
         rescue NoMethodError => e
           
-          log.error "User #{name} was in the enable queue but not in the userlist"
+          @log.error "User #{name} was in the enable queue but not in the userlist"
         rescue RuntimeError => e
 
           puts e.message
