@@ -19,10 +19,18 @@ class action_plugin_braincase extends DokuWiki_Action_Plugin {
 
 	private function _save_email_data( $data ) {
 
-		preg_match("@Login\s+:\s+(.*)@", $data["body"], $m);
-		$login = $m[1];
-		$file = DOKU_DATA . "pages/braincase/mailq/$login.txt";
-		file_put_contents( $file, json_encode( $data ) );
-	}
+		// Find the log from the email content
+		$login = preg_match("@Login\s+:\s+(.*)@", $data["body"], $m)
+		  ? $m[1]
+		  : "unknown-".mktime();
 
+		// Set the filename and save the email in json format
+		$file = "/var/lib/braincase/mailq/$login.txt";
+		file_put_contents( $file, json_encode( $data ) );
+		
+		// Set perms
+		chmod($file, 700); // only let the owner see this
+		chgrp($file, "root"); // set the group first so we still have permission...
+		chown($file, "root"); // ... to set the owner
+	}
 }
