@@ -11,7 +11,7 @@ class action_plugin_braincase extends DokuWiki_Action_Plugin {
 
 		switch ( $event->data['subject'] ){
 			case "Your DokuWiki password":
-				$event->preventDefault();
+				$event->preventDefault(); // stop the email from sending
 				$this->_save_email_data( $event->data );
 				break;
 		}
