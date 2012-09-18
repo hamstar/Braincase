@@ -8,6 +8,7 @@ braincase:
   :usersync:
     :users_hash: "/var/lib/braincase/users.hash"
     :log: "/var/log/braincase/usersync.log"
+    :mailq: "/var/lib/braincase/mailq"
 
   :autodropbox:
     :log: "/var/log/braincase/autodropbox.log"
