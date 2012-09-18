@@ -1,9 +1,14 @@
 #!/usr/bin/ruby
 
-if `whoami`.chomp != "root"
-  puts "Need to be root to run this script"
-  exit
-end
+# Author: Robert McLeod
+# Desc:   Exports the backup zip file specified at the command line
+#         to the dropbox folder
+
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
+
+require 'braincase/utils'
+
+abort "Must be root" if !Braincase.is_root?
 
 if ARGV[0].nil?
   puts "Usage: braincase-export-to-dropbox <filename>"
@@ -12,7 +17,7 @@ end
 
 filepath = ARGV[0]
 home = filepath.match(/\/home\/[^\/]+/)[0]
-dropbox_dir = "#{home}/Dropbox"
+dropbox_dir = "#{home}/Dropbox/Braincase"
 
 if !File.exists? filepath
   puts "Unable to export to dropbox couldn't find the file given (#{filepath})"
