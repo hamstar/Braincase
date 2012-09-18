@@ -1,3 +1,5 @@
+require 'braincase/utils'
+
 module Braincase
   class User
 
@@ -29,6 +31,26 @@ module Braincase
 
     def in_linux
       File.directory? @home
+    end
+
+    def set_linux_password(secret)
+      
+      if !Braincase.is_root?
+        raise RuntimeError, "Only root is allowed to set passwords"
+      end
+
+      if !in_linux
+        raise RuntimeError, "User #{@name} does not exist in linux"
+      end
+
+      pass = `openssl passwd #{secret}`.chomp
+      output = `usermod -p #{pass} #{@name}`
+
+      if $?.exitstatus != 0
+        raise RuntimeError, "Unable to set password for user (#{$?.exitstatus}): #{output}"
+      end
+
+      true
     end
 
     def self.in_linux(name)
