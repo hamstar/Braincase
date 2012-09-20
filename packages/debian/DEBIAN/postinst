@@ -4,8 +4,6 @@
 # Date: 	23 August 2012
 # Desc:		Post install script for Braincase
 
-# Enable the user dirs
-
 # TODO: replace this with plain commands in this file
 
 #Setup Per-User-Directory
@@ -18,6 +16,10 @@ a2dissite default
 # Enable SSL
 a2enmod ssl
 
+#Enabled Mod_Rewrite
+a2enmod rewrite
+
+
 # Convenience link for dropbox
 ln -s /usr/bin/dropbox.py /usr/bin/dropbox
 
@@ -29,6 +31,14 @@ chmod og-rwx /etc/cron.d/braincase
 if [ -f /etc/apache2/conf.d/dokuwiki.conf ]; then
 	unlink /etc/apache2/conf.d/dokuwiki.conf
 fi;
+
+#Move in the .htaccess file & Uncomment out ths stuff
+mv /usr/share/dokuwiki/.htaccess.dist /usr/share/dokuwiki/.htaccess
+sed 's/\#RewriteEngine on/RewriteEngine on/' -i /usr/share/dokuwiki/.htaccess
+sed 's/\#RewriteRule/RewriteRule/' -i /usr/share/dokuwiki/.htaccess
+sed 's/\#RewriteCond/RewriteCond/' -i /usr/share/dokuwiki/.htaccess
+#Enable Overrite of writing.
+
 
 # Reload apache ALWAYS DO THIS LAST
 service apache2 reload
