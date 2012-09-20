@@ -4,3 +4,6 @@
 [submodule "var/lib/dokuwiki/lib/tpl/taratasy"]
 	path = var/lib/dokuwiki/lib/tpl/taratasy
 	url = git://github.com/hamstar/taratasy.git
+[submodule "var/lib/dokuwiki/lib/plugins/bubble"]
+	path = var/lib/dokuwiki/lib/plugins/bubble
+	url = https://github.com/hamstar/dokuwiki-plugin-bubble.git
