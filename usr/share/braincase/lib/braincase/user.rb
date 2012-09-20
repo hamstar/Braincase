@@ -53,6 +53,23 @@ module Braincase
       true
     end
 
+    def save_config
+
+      if !has_braincase
+        return false
+      end
+
+      c = { 
+        [@name] => {
+          full_name: @full_name,
+          email: @email,
+          groups: @groups
+        }
+      }
+
+      File.open("#{@home}/.braincase/config","w") do {|f| f.write c.to_yaml}
+    end
+
     def self.in_linux(name)
       File.directory? self.new(name).home
     end
@@ -151,6 +168,7 @@ module Braincase
     def add_braincase
       if !has_braincase
         run "mkdir #{@home}/.braincase"
+        save_config
       end
     end
 
