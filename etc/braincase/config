@@ -1,6 +1,16 @@
 ---
 braincase:
   :users_file: "/etc/dokuwiki/users.auth.php"
+  :data_dir: "/var/lib/dokuwiki/data"
+
+  :email:
+    :from: "braincase@example.com"
+    :address: "localhost"
+    :domain: "example.com"
+    :port: 25
+    :user_name:
+    :password:
+    :authentication:
 
   :createuser:
     :log: "/var/log/braincase/createuser.log"

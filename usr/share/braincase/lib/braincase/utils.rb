@@ -18,8 +18,11 @@ module Braincase
 
   # allows us to send emails
   def Braincase.send_email(to,opts={})
-    opts[:server]      ||= "localhost"
-    opts[:from]        ||= "braincase@#{Braincase::HOSTNAME}"
+
+    c = Braincase.config
+
+    opts[:server]      ||= c[:email][:address]
+    opts[:from]        ||= c[:email][:from]
     opts[:from_alias]  ||= "Braincase"
     opts[:subject]     ||= "Message from Braincase"
     opts[:body]        ||= "Nothing to report!"
