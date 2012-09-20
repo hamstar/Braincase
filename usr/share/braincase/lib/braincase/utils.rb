@@ -12,6 +12,17 @@ module Braincase
     YAML.load( raw )["braincase"]
   end
 
+  def Braincase.current_user
+    user.home = User.new `whoami`.chomp
+
+    conf = YAML.load( File.read( "#{user.home}/.braincase/config" ) )[user.name]
+    user.email = conf[:email]
+    user.full_name = conf[:full_name]
+    user.groups = conf[:groups]
+
+    user
+  end
+
   def Braincase.is_root?
     Process.uid == 0
   end
