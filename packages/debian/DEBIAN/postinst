@@ -37,7 +37,8 @@ mv /usr/share/dokuwiki/.htaccess.dist /usr/share/dokuwiki/.htaccess
 sed 's/\#RewriteEngine on/RewriteEngine on/' -i /usr/share/dokuwiki/.htaccess
 sed 's/\#RewriteRule/RewriteRule/' -i /usr/share/dokuwiki/.htaccess
 sed 's/\#RewriteCond/RewriteCond/' -i /usr/share/dokuwiki/.htaccess
-#Enable Overrite of writing.
+#Enable use of Webserver re-writing
+echo "\$conf['userewrite'] = 1;" >> /etc/dokuwiki/local.php
 
 
 # Reload apache ALWAYS DO THIS LAST
