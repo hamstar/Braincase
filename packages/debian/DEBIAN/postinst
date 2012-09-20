@@ -27,3 +27,8 @@ ln -s /usr/bin/dropbox.py /usr/bin/dropbox
 # Need to make the cron script root only
 chown root:root /etc/cron.d/braincase
 chmod og-rwx /etc/cron.d/braincase
+
+# Install the backup gem and its dependencies
+echo "Installing the Backup gem";
+gem install backup;
+backup dependencies --install mail;
