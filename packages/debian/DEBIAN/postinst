@@ -40,6 +40,11 @@ sed 's/\#RewriteCond/RewriteCond/' -i /usr/share/dokuwiki/.htaccess
 #Enable use of Webserver re-writing
 echo "\$conf['userewrite'] = 1;" >> /etc/dokuwiki/local.php
 
+#Enable Cron Logging then restart
+sed 's/\#cron\.\*/cron\.\*/' -i /etc/rsyslog.conf
+/etc/init.d/rsyslog restart
+/etc/init.d/cron restart
+
 
 # Reload apache ALWAYS DO THIS LAST
 service apache2 reload
