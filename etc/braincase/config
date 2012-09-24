@@ -23,5 +23,5 @@ braincase:
   :autodropbox:
     :log: "/var/log/braincase/autodropbox.log"
     :queues:
-      :enable: "/var/lib/dokuwiki/data/pages/braincase/dropbox/enable_queue.txt"
-      :enabled: "/var/lib/dokuwiki/data/pages/braincase/dropbox/enabled_users.txt"
+      :enable: "/var/lib/dokuwiki/data/pages/admin/dropbox/enable_queue.txt"
+      :enabled: "/var/lib/dokuwiki/data/pages/admin/dropbox/enabled_users.txt"

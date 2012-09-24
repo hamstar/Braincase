@@ -10,4 +10,4 @@
 *               @ALL          1
 *               @user         8
 wiki:*	@user	1
-braincase:*	@user	0
+admin:*	@user	0
