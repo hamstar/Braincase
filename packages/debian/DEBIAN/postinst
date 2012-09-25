@@ -4,8 +4,6 @@
 # Date: 	23 August 2012
 # Desc:		Post install script for Braincase
 
-# Enable the user dirs
-
 # TODO: replace this with plain commands in this file
 
 #Setup Per-User-Directory
@@ -18,8 +16,9 @@ a2dissite default
 # Enable SSL
 a2enmod ssl
 
-# Reload apache
-service apache2 reload
+#Enabled Mod_Rewrite
+a2enmod rewrite
+
 
 # Convenience link for dropbox
 ln -s /usr/bin/dropbox.py /usr/bin/dropbox
@@ -32,3 +31,32 @@ chmod og-rwx /etc/cron.d/braincase
 echo "Installing the Backup gem";
 gem install backup;
 backup dependencies --install mail;
+
+# Remove this configuration file that stuffs everything up
+if [ -f /etc/apache2/conf.d/dokuwiki.conf ]; then
+	unlink /etc/apache2/conf.d/dokuwiki.conf
+fi;
+
+#Move in the .htaccess file & Uncomment out ths stuff
+mv /usr/share/dokuwiki/.htaccess.dist /usr/share/dokuwiki/.htaccess
+sed 's/\#RewriteEngine on/RewriteEngine on/' -i /usr/share/dokuwiki/.htaccess
+sed 's/\#RewriteRule/RewriteRule/' -i /usr/share/dokuwiki/.htaccess
+sed 's/\#RewriteCond/RewriteCond/' -i /usr/share/dokuwiki/.htaccess
+#Enable use of Webserver re-writing
+echo "\$conf['userewrite'] = 1;" >> /etc/dokuwiki/local.php
+
+#Enable Cron Logging then restart
+sed 's/\#cron\.\*/cron\.\*/' -i /etc/rsyslog.conf
+/etc/init.d/rsyslog restart
+/etc/init.d/cron restart
+
+# Link the logs in (and perm them)
+for log in `ls /var/log/braincase`; do
+  link="/var/lib/dokuwiki/data/pages/admin/logs/"`echo $log|cut -d'/' -f5|sed 's/\.log/\.txt/'`;
+  ln -s $log $link;
+  chgrp www-data $link;
+  chmod 755 $link;
+done;
+
+# Reload apache ALWAYS DO THIS LAST
+service apache2 reload

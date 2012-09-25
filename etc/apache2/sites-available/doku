@@ -4,11 +4,11 @@
 	DocumentRoot /usr/share/dokuwiki
 	<Directory />
 		Options FollowSymLinks
-		AllowOverride None
+		AllowOverride AuthConfig FileInfo Limit
 	</Directory>
 	<Directory /usr/share/dokuwiki>
 		Options Indexes FollowSymLinks MultiViews
-		AllowOverride None
+		AllowOverride AuthConfig FileInfo Limit
 		Order allow,deny
 		allow from all
 	</Directory>
@@ -47,11 +47,11 @@
 	DocumentRoot /usr/share/dokuwiki
 	<Directory />
 		Options FollowSymLinks
-		AllowOverride None
+		AllowOverride AuthConfig FileInfo Limit
 	</Directory>
 	<Directory /usr/share/dokuwiki>
 		Options Indexes FollowSymLinks MultiViews
-		AllowOverride None
+		AllowOverride AuthConfig FileInfo Limit
 		Order allow,deny
 		allow from all
 	</Directory>
