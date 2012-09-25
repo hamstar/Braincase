@@ -23,7 +23,7 @@ module Braincase
         begin
 
           user = @user.build line # build user from a line in the users file
-          next if user.has_braincase
+          next if user.has_braincase?
           
           user.create
           @log.info "Created #{user.name} in system"
@@ -62,7 +62,7 @@ module Braincase
       saved_email = JSON.load( File.read( saved_email ) )
 
       secret = extract_password saved_email["body"]
-      user.set_password secret
+      user.set_linux_password secret
       @log.info "Set password for #{user.name}"
       
       notify_user saved_email

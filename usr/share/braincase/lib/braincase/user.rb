@@ -29,7 +29,7 @@ module Braincase
       u
     end
 
-    def in_linux
+    def in_linux?
       File.directory? @home
     end
 
@@ -74,7 +74,7 @@ module Braincase
       File.directory? self.new(name).home
     end
 
-    def in_dokuwiki
+    def in_dokuwiki?
       begin
         return File.read(Braincase.config[:users_file]).match(/^#{user}:/)
       rescue
@@ -82,17 +82,16 @@ module Braincase
       end
     end
 
-    def has_repo
+    def has_repo?
       File.directory? @repo
     end
 
-    def has_braincase
+    def has_braincase?
       File.directory? "#{@home}/.braincase"
     end
 
     def create
-
-      add_to_linux
+      add_to_linux!
       setup_bare_repo
       add_userdir
       add_braincase
@@ -100,8 +99,8 @@ module Braincase
       setup_local_repo
     end
 
-    def add_to_linux
-      if !in_linux
+    def add_to_linux!
+      if !in_linux?
         output = `/usr/sbin/useradd -s /bin/bash -md #{@home} #{@name} 2>&1`
 
         # Die unless the user was created or exists
@@ -112,10 +111,10 @@ module Braincase
     end
 
     def setup_bare_repo
-      if !has_repo
+      if !has_repo?
         run "mkdir #{@repo}"
         run "cd #{@repo} && git init --bare"
-        add_hook_to_repo
+        add_hook_to_repo!
       end
     end
 
@@ -125,12 +124,12 @@ module Braincase
         run "cd ~ && git remote add origin #{@repo}"
         run "cd ~ && git config --global user.email \"#{@email}\""
         run "cd ~ && git config --global user.name \"#{@full_name}\""
-        add_ignore_file
-        do_first_commit
+        add_ignore_file!
+        do_first_commit!
       end
     end
 
-    def do_first_commit
+    def do_first_commit!
       if File.directory? "#{@home}/.git"
         run "cd ~ && git add . && git commit -m 'first commit'"
         run "cd ~ && git push origin master 2>&1 > /dev/null"
@@ -139,18 +138,16 @@ module Braincase
       end
     end
 
-    def add_ignore_file
-      `cp /usr/share/braincase/contrib/gitignore.example #{@home}/.gitignore`
-      own_file "#{@home}/.gitignore"
+    def add_ignore_file!
+      cp "gitignore.example", "#{@home}/.gitignore"
     end
 
-    def add_hook_to_repo
-      `cp /usr/share/braincase/contrib/post-receive.example #{@repo}/hooks`
-      own_file "#{@repo}/hooks -R"
-      `chmod a+x #{@repo}/hooks -R`
+    def add_hook_to_repo!
+      cp "post-receive.example", "#{@repo}/hooks/post-receive"
+      `chmod u+x #{@repo}/hooks/post-receive`
     end
 
-    def own_file(file)
+    def own_file!(file)
       `chown #{@name}:#{@name} #{file}`
     end
 
@@ -166,7 +163,7 @@ module Braincase
     end
 
     def add_braincase
-      if !has_braincase
+      if !has_braincase?
         run "mkdir #{@home}/.braincase"
         save_config
       end
@@ -176,6 +173,30 @@ module Braincase
       if !File.directory? "#{@home}/backups"
         run "mkdir #{@home}/backups"
       end
+    end
+
+    # Convenience methods - adds readability to the code
+
+    def ln(source, link)
+      run "ln -s #{source} #{link}"
+    end
+
+    def ln!(source, link)
+      `ln -s #{source} #{link}`
+    end
+
+    # If contrib is true then the root directory of from
+    # is treated as the contrib folder (usually /usr/share/braincase/contrib/)
+    def cp(from, to, contrib=true)
+      if contrib
+        from = "/usr/bin/share/braincase/contrib/"+from
+      end
+
+      run "cp #{from} #{to}"
+    end
+
+    def touch(file) 
+      run "touch #{file}"
     end
   end
 end
