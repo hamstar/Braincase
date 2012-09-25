@@ -18,9 +18,6 @@ a2dissite default
 # Enable SSL
 a2enmod ssl
 
-# Reload apache
-service apache2 reload
-
 # Convenience link for dropbox
 ln -s /usr/bin/dropbox.py /usr/bin/dropbox
 
@@ -32,3 +29,6 @@ chmod og-rwx /etc/cron.d/braincase
 if [ -f /etc/apache2/conf.d/dokuwiki.conf ]; then
 	unlink /etc/apache2/conf.d/dokuwiki.conf
 fi;
+
+# Reload apache
+service apache2 reload
