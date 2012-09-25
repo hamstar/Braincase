@@ -3,7 +3,7 @@ require 'braincase/utils'
 module Braincase
   class User
 
-    attr_reader :name, :home
+    attr_reader :name, :home, :repo
     attr_accessor :email, :full_name, :groups
 
     def initialize(name)
@@ -243,7 +243,7 @@ module Braincase
 
     def add_backups
       if !File.directory? "#{@home}/backups"
-        run "mkdir #{@home}/backups"
+        run "mkdir -p #{@home}/backups/manifests"
       end
     end
 

@@ -45,18 +45,18 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
   #
   archive :dokuwiki do |a|
     a.add "#{$user.home}/dokuwiki/data.current"
-    a.options "--index-file=~/backups/daily_backup/#{$date}/dokuwiki_manifest.txt"
+    a.options "--index-file=~/backups/manifests/#{$date}_dokuwiki.manifest"
   end
 
   archive :home do |a|
     a.add "~"
+    a.options "--index-file=~/backups/manifests/#{$date}_home.manifest"
     a.exclude "~/#{$user.name}.git"
-    a.options "--index-file=~/backups/daily_backup/#{$date}/home_manifest.txt"
   end
 
   archive :repo do |a|
     a.add "~/#{$user.name}.git"
-    a.options "--index-file=~/backups/daily_backup/#{$date}/repo_manifest.txt"
+    a.options "--index-file=~/backups/manifests/#{$date}_repo.manifest"
   end
 
   ##
