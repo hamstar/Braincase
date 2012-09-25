@@ -1,5 +1,6 @@
 require 'yaml'
 require 'net/smtp'
+require 'braincase/user'
 
 module Braincase
 
@@ -7,13 +8,13 @@ module Braincase
   HOSTNAME = `hostname -f`.chomp
 
   def Braincase.config
-    
-    raw = File.read( CONFIG_FILE )
+   
+     raw = File.read( CONFIG_FILE )
     YAML.load( raw )["braincase"]
   end
 
   def Braincase.current_user
-    user.home = User.new `whoami`.chomp
+    user.home = Braincase::User.new `whoami`.chomp
 
     conf = YAML.load( File.read( "#{user.home}/.braincase/config" ) )[user.name]
     user.email = conf[:email]
