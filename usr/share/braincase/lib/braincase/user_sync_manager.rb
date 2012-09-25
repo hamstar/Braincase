@@ -25,7 +25,7 @@ module Braincase
           user = @user.build line # build user from a line in the users file
           next if user.has_braincase?
           
-          user.create
+          user.create @log
           @log.info "Created #{user.name} in system"
 
           check_for_notify_email user

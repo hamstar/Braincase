@@ -94,15 +94,26 @@ module Braincase
       File.directory? "#{@home}/dokuwiki"
     end
 
-    def create
-      
-      add_to_linux!
-      setup_bare_repo
-      add_userdir
-      add_braincase
-      add_backups
-      setup_wiki!
-      setup_local_repo
+    def create(log)
+
+      @log=log
+      @log.debug "Creating a new Braincase user: #{@name}"
+
+      begin
+        add_to_linux!
+        setup_bare_repo
+        add_userdir
+        add_braincase
+        add_backups
+        setup_logs
+        setup_wiki!
+        setup_local_repo
+
+      rescue => e
+        @log.error "Failed to create user"
+        Braincase.log_lines @log, e.message
+        Braincase.log_lines @log, e.stack
+      end
     end
 
     def add_to_linux!
@@ -111,11 +122,15 @@ module Braincase
 
         # Die unless the user was created or exists
         if $?.exitstatus != 0 and $?.exitstatus != 9
-          raise RuntimeError, "Could not add user to linux (#{$?.exitstatus}): #{output}"
+          raise RuntimeError, "Could not add user to linux (#{$?.exitstatus})\n#{output}"
         end
       end
     end
 
+    def setup_logs
+      touch "~/logs/backup.log"
+      touch "~/logs/dropbox_setup.log"
+    end
 
     def setup_wiki!
 
@@ -129,11 +144,20 @@ module Braincase
       current_data = "~/dokuwiki/data.current"
       run "mkdir -p #{current_data}"
       run "cd #{current_data} && mkdir -p #{default_folders}"
+      run "mkdir #{current_data}/pages/logs"
     end
 
     def create_wiki_files!
+
       # Add default files
       cp "user_start.txt", "#{current_data}/pages/start.txt"
+      cp "logs_start.txt", "#{current_data}/pages/logs/start.txt"
+
+      # Modify files if needed
+      File.open("#{current_data}/pages/logs/start.txt", "w+") do {|f|
+        text = f.read.gsub("$USER$", @name)
+        f.write text
+      }
     end
 
     def create_wiki_symlinks
@@ -142,6 +166,16 @@ module Braincase
 
       default_folders.split(" ").each do |folder|
         ln! "#{@home}/#{current_data}/#{folder}", "/var/lib/dokuwiki/data/#{folder}/#{@name}"
+      end
+
+      link_logs_in_wiki
+    end
+
+    def link_logs_in_wiki
+  
+      run("ls #{@home}/logs -1").split("\n").do each |log|
+        fn = log.gsub("log", "txt")
+        ln log, "~/dokuwiki/data.current/pages/logs/#{fn}"
       end
     end
 
@@ -187,7 +221,10 @@ module Braincase
     end
 
     def run(cmd)
-      `su #{@name} -c "#{cmd}"`
+      output=`su #{@name} -c "#{cmd}"`
+      @log.debug "run as #{@name} finished with status #{$?.exitstatus}"
+      @log.debug ": `#{cmd}`"
+      output
     end
 
     def add_userdir
