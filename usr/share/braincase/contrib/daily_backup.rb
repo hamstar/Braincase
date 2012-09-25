@@ -44,9 +44,7 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
   #  archive.exclude "/path/to/an/excluded_directory/
   #
   archive :dokuwiki do |a|
-    a.add "#{$conf[:data_dir]}/pages/#{$user.name}"
-    a.add "#{$conf[:data_dir]}/meta/#{$user.name}"
-    a.add "#{$conf[:data_dir]}/attic/#{$user.name}"
+    a.add "#{$user.home}/dokuwiki/data.current"
     a.options "--index-file=~/backups/daily_backup/#{$date}/dokuwiki_manifest.txt"
   end
 
