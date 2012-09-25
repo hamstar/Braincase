@@ -1,9 +1,9 @@
 require 'braincase/utils'
 
 module Braincase
-  class User
+  class User < UserUtils
 
-    attr_reader :name, :home, :repo
+    attr_reader :name, :home, :repo, :logs, :dirs
     attr_accessor :email, :full_name, :groups
 
     def initialize(name)
@@ -15,10 +15,37 @@ module Braincase
       @name=name
       @home="/home/#{name}"
       @repo="#{home}/#{name}.git"
+      
+      @dirs = {
+        home: @home,
+        repo: @repo,
+        doku: "#{@home}/dokuwiki",                      # change the one down there too
+        braincase: "#{@home}/.braincase",
+        dropbox: "#{@home}/Dropbox",
+        backups: "#{@home}/backups",
+        logs: "#{@home}/logs",
+        doku_current: "#{@home}/dokuwiki/data.current"  # change the one up there too ^^^
+      }
+      
+      @logs = {
+        backup: "#{@dirs[:logs]}/backup.log",
+        dropbox: "#{@dirs[:logs]}/dropbox_setup.log"
+      }
+    end
+
+    def self.all
+
+      users = []
+      File.open( Braincase.config[:users_file], "r" ).each do |line|
+        users[] = self.build line
+      end
+
+      users
     end
 
     # Build a user a line in the user_file
     def self.build(line)
+      
       vars = line.split(":")
       
       u = self.new vars[0]
@@ -29,28 +56,49 @@ module Braincase
       u
     end
 
-    def in_linux?
-      File.directory? @home
-    end
-
     def set_linux_password(secret)
       
       if !Braincase.is_root?
         raise RuntimeError, "Only root is allowed to set passwords"
       end
 
-      if !in_linux
+      if !in_linux?
         raise RuntimeError, "User #{@name} does not exist in linux"
       end
 
       pass = `openssl passwd #{secret}`.chomp
-      output = `usermod -p #{pass} #{@name}`
+      output = `usermod -p #{pass} #{@name}`  # set the password
 
       if $?.exitstatus != 0
         raise RuntimeError, "Unable to set password for user (#{$?.exitstatus}): #{output}"
       end
 
       true
+    end
+
+    def perform_backup
+
+      # Set what we can export backups to
+      export_to :dropbox
+      
+      run "backup perform --trigger=daily_backup --log-path #{@logs[:backup]}"
+    end
+
+    # Preps files/folders/links to ensure that a backup can be exported
+    # for whatever target is given
+    def export_to(target)
+      case target
+      when :dropbox
+        link_dropbox_backups
+      end
+    end
+
+    # Makes the link between backups and the Dropbox dir
+    def link_dropbox_backups
+      if has_dropbox? and !File.exists? "#{@dirs[:dropbox]}/Braincase/Memories"
+        run "mkdir #{@dirs[:dropbox]}/Braincase"
+        ln @dirs[:backups], "#{@dirs[:dropbox]}/Braincase/Memories"
+      end
     end
 
     def save_config
@@ -63,15 +111,25 @@ module Braincase
         [@name] => {
           full_name: @full_name,
           email: @email,
-          groups: @groups
+          groups: @groups,
+          dirs: @dirs,
+          logs: @logs
         }
       }
 
-      File.open("#{@home}/.braincase/config","w") do {|f| f.write c.to_yaml}
+      File.open("#{@dirs[:braincase]}/config","w") {|f| f.write c.to_yaml}
+    end
+
+    def in_linux?
+      File.directory? @home
     end
 
     def self.in_linux(name)
       File.directory? self.new(name).home
+    end
+
+    def has_dropbox?
+      File.directory? @dirs[:dropbox]
     end
 
     def in_dokuwiki?
@@ -87,133 +145,11 @@ module Braincase
     end
 
     def has_braincase?
-      File.directory? "#{@home}/.braincase"
+      File.directory? @dirs[:braincase]
     end
 
     def has_dokuwiki?
-      File.directory? "#{@home}/dokuwiki"
-    end
-
-    def create(log)
-
-      @log=log
-      @log.debug "Creating a new Braincase user: #{@name}"
-
-      begin
-        add_to_linux!
-        setup_bare_repo
-        add_userdir
-        add_braincase
-        add_backups
-        setup_logs
-        setup_wiki!
-        setup_local_repo
-
-      rescue => e
-        @log.error "Failed to create user"
-        Braincase.log_lines @log, e.message
-        Braincase.log_lines @log, e.stack
-      end
-    end
-
-    def add_to_linux!
-      if !in_linux?
-        output = `/usr/sbin/useradd -s /bin/bash -md #{@home} #{@name} 2>&1`
-
-        # Die unless the user was created or exists
-        if $?.exitstatus != 0 and $?.exitstatus != 9
-          raise RuntimeError, "Could not add user to linux (#{$?.exitstatus})\n#{output}"
-        end
-      end
-    end
-
-    def setup_logs
-      touch "~/logs/backup.log"
-      touch "~/logs/dropbox_setup.log"
-    end
-
-    def setup_wiki!
-
-      create_wiki_folders!
-      create_wiki_files!
-      create_wiki_symlinks
-    end
-
-    def create_wiki_folders!
-      folders = "pages meta attic"
-      current_data = "~/dokuwiki/data.current"
-      run "mkdir -p #{current_data}"
-      run "cd #{current_data} && mkdir -p #{default_folders}"
-      run "mkdir #{current_data}/pages/logs"
-    end
-
-    def create_wiki_files!
-
-      # Add default files
-      cp "user_start.txt", "#{current_data}/pages/start.txt"
-      cp "logs_start.txt", "#{current_data}/pages/logs/start.txt"
-
-      # Modify files if needed
-      File.open("#{current_data}/pages/logs/start.txt", "w+") do {|f|
-        text = f.read.gsub("$USER$", @name)
-        f.write text
-      }
-    end
-
-    def create_wiki_symlinks
-      # Link stuff
-      ln current_data, "~/dokuwiki/data"
-
-      default_folders.split(" ").each do |folder|
-        ln! "#{@home}/#{current_data}/#{folder}", "/var/lib/dokuwiki/data/#{folder}/#{@name}"
-      end
-
-      link_logs_in_wiki
-    end
-
-    def link_logs_in_wiki
-  
-      run("ls #{@home}/logs -1").split("\n").do each |log|
-        fn = log.gsub("log", "txt")
-        ln log, "~/dokuwiki/data.current/pages/logs/#{fn}"
-      end
-    end
-
-    def setup_bare_repo
-      if !has_repo?
-        run "mkdir #{@repo}"
-        run "cd #{@repo} && git init --bare"
-        add_hook_to_repo!
-      end
-    end
-
-    def setup_local_repo
-      if !File.directory? "#{@home}/.git"
-        run "cd ~ && git init"
-        run "cd ~ && git remote add origin #{@repo}"
-        run "cd ~ && git config --global user.email \"#{@email}\""
-        run "cd ~ && git config --global user.name \"#{@full_name}\""
-        add_ignore_file!
-        do_first_commit!
-      end
-    end
-
-    def do_first_commit!
-      if File.directory? "#{@home}/.git"
-        run "cd ~ && git add . && git commit -m 'first commit'"
-        run "cd ~ && git push origin master 2>&1 > /dev/null"
-      else
-        @log.error "Couldn't do the first commit as the repo wasn't created!"
-      end
-    end
-
-    def add_ignore_file!
-      cp "gitignore.example", "#{@home}/.gitignore"
-    end
-
-    def add_hook_to_repo!
-      cp "post-receive.example", "#{@repo}/hooks/post-receive"
-      `chmod u+x #{@repo}/hooks/post-receive`
+      File.directory? @dirs[:doku]
     end
 
     def own_file!(file)
@@ -222,53 +158,6 @@ module Braincase
 
     def run(cmd)
       output=`su #{@name} -c "#{cmd}"`
-      @log.debug "run as #{@name} finished with status #{$?.exitstatus}"
-      @log.debug ": `#{cmd}`"
-      output
-    end
-
-    def add_userdir
-      if !File.directory? "#{@home}/public_html"
-        run "mkdir #{@home}/public_html"
-        run "touch #{@home}/public_html/.gitkeep"
-      end
-    end
-
-    def add_braincase
-      if !has_braincase?
-        run "mkdir #{@home}/.braincase"
-        save_config
-      end
-    end
-
-    def add_backups
-      if !File.directory? "#{@home}/backups"
-        run "mkdir -p #{@home}/backups/manifests"
-      end
-    end
-
-    # Convenience methods - adds readability to the code
-
-    def ln(source, link)
-      run "ln -s #{source} #{link}"
-    end
-
-    def ln!(source, link)
-      `ln -s #{source} #{link}`
-    end
-
-    # If contrib is true then the root directory of from
-    # is treated as the contrib folder (usually /usr/share/braincase/contrib/)
-    def cp(from, to, contrib=true)
-      if contrib
-        from = "/usr/bin/share/braincase/contrib/"+from
-      end
-
-      run "cp #{from} #{to}"
-    end
-
-    def touch(file) 
-      run "touch #{file}"
     end
   end
 end
