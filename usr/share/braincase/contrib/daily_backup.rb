@@ -44,26 +44,26 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
   #  archive.exclude "/path/to/an/excluded_directory/
   #
   archive :dokuwiki do |a|
-    a.add "#{$user.home}/dokuwiki/data.current"
-    a.options "--index-file=~/backups/manifests/#{$date}_dokuwiki.manifest"
+    a.add $user.dirs[:doku_current]
+    a.options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_dokuwiki.manifest"
   end
 
   archive :home do |a|
     a.add "~"
-    a.options "--index-file=~/backups/manifests/#{$date}_home.manifest"
-    a.exclude "~/#{$user.name}.git"
+    a.exclude $user.repo
+    a.options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_home.manifest"
   end
 
   archive :repo do |a|
-    a.add "~/#{$user.name}.git"
-    a.options "--index-file=~/backups/manifests/#{$date}_repo.manifest"
+    a.add $user.repo
+    a.options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_repo.manifest"
   end
 
   ##
   # Local (Copy) [Storage]
   #
   store_with Local do |local|
-    local.path       = "~/backups/"
+    local.path       = $user.dirs[:backups]
     local.keep       = 14
   end
 
