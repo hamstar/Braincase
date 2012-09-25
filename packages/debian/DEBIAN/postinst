@@ -30,5 +30,13 @@ if [ -f /etc/apache2/conf.d/dokuwiki.conf ]; then
 	unlink /etc/apache2/conf.d/dokuwiki.conf
 fi;
 
+# Link the logs in (and perm them)
+for log in `ls /var/log/braincase`; do
+  link="/var/lib/dokuwiki/data/pages/admin/logs/"`echo $log|cut -d'/' -f5|sed 's/\.log/\.txt/'`;
+  ln -s $log $link;
+  chgrp www-data $link;
+  chmod 755 $link;
+done;
+
 # Reload apache
 service apache2 reload
