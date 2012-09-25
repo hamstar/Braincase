@@ -28,6 +28,12 @@ module Braincase
     Process.uid == 0
   end
 
+  def Braincase.log_lines(log, lines, level=:error)
+    lines.split("\n").each do |line|
+      log.send(level, line) # call log.error line (unless caller sets level)
+    end
+  end
+
   # allows us to send emails
   def Braincase.send_email(to,opts={})
 
