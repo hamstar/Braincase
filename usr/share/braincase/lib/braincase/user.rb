@@ -90,12 +90,18 @@ module Braincase
       File.directory? "#{@home}/.braincase"
     end
 
+    def has_dokuwiki?
+      File.directory? "#{@home}/dokuwiki"
+    end
+
     def create
+      
       add_to_linux!
       setup_bare_repo
       add_userdir
       add_braincase
       add_backups
+      setup_wiki!
       setup_local_repo
     end
 
@@ -107,6 +113,35 @@ module Braincase
         if $?.exitstatus != 0 and $?.exitstatus != 9
           raise RuntimeError, "Could not add user to linux (#{$?.exitstatus}): #{output}"
         end
+      end
+    end
+
+
+    def setup_wiki!
+
+      create_wiki_folders!
+      create_wiki_files!
+      create_wiki_symlinks
+    end
+
+    def create_wiki_folders!
+      folders = "pages meta attic"
+      current_data = "~/dokuwiki/data.current"
+      run "mkdir -p #{current_data}"
+      run "cd #{current_data} && mkdir -p #{default_folders}"
+    end
+
+    def create_wiki_files!
+      # Add default files
+      cp "user_start.txt", "#{current_data}/pages/start.txt"
+    end
+
+    def create_wiki_symlinks
+      # Link stuff
+      ln current_data, "~/dokuwiki/data"
+
+      default_folders.split(" ").each do |folder|
+        ln! "#{@home}/#{current_data}/#{folder}", "/var/lib/dokuwiki/data/#{folder}/#{@name}"
       end
     end
 
