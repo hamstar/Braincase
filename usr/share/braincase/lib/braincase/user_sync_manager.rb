@@ -3,8 +3,9 @@ require 'json'
 module Braincase
   class UserSyncManager
 
-    def initialize( config, log, user, md5 )
+    def initialize( creator, config, log, user, md5 )
 
+      @creator=creator
       @config=config
       @log=log
       @user=user
@@ -25,7 +26,7 @@ module Braincase
           user = @user.build line # build user from a line in the users file
           next if user.has_braincase?
           
-          user.create @log
+          @creator.create user
           @log.info "Created #{user.name} in system"
 
           check_for_notify_email user

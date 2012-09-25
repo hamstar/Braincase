@@ -16,7 +16,8 @@ log.level = Logger::INFO
 
 log.info "Starting sync"
 
-usm = Braincase::UserSyncManager.new( config, log, Braincase::User, Digest::MD5 )
+creator = Braincase::UserCreator.new log, config
+usm = Braincase::UserSyncManager.new( creator, config, log, Braincase::User, Digest::MD5 )
 usm.sync
 
 log.info "Finished sync"
