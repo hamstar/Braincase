@@ -11,3 +11,4 @@ $conf['license'] = 'cc-by-sa';
 $conf['useacl'] = 1;
 $conf['superuser'] = '@admin';
 $conf['template'] = 'taratasy';
+$conf['disableactions'] = 'register';            //comma separated list of actions to disable
