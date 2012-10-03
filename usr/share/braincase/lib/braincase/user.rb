@@ -20,12 +20,12 @@ module Braincase
       @dirs = {
         home: @home,
         repo: @repo,
-        doku: "#{@home}/dokuwiki",                      # change the one down there too
+        doku: "#{@home}/.dokuwiki",                      # change the one down there too
         braincase: "#{@home}/.braincase",
         dropbox: "#{@home}/Dropbox",
         backups: "#{@home}/backups",
         logs: "#{@home}/logs",
-        doku_current: "#{@home}/dokuwiki/data.current"  # change the one up there too ^^^
+        doku_current: "#{@home}/.dokuwiki/data.current"  # change the one up there too ^^^
       }
       
       @logs = {
