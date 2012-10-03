@@ -55,7 +55,7 @@ module Braincase
       
       saved_email = "#{@config[:mailq]}/#{user.name}.txt"
       
-      if !File.exists saved_email
+      if !File.exist? saved_email
         @log.info "#{user.name} does not have a saved email"
         return false
       end

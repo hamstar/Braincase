@@ -1,4 +1,5 @@
 require 'braincase/utils'
+require 'braincase/user_utils'
 
 module Braincase
   class User < UserUtils
@@ -95,7 +96,7 @@ module Braincase
 
     # Makes the link between backups and the Dropbox dir
     def link_dropbox_backups
-      if has_dropbox? and !File.exists? "#{@dirs[:dropbox]}/Braincase/Memories"
+      if has_dropbox? and !File.exist? "#{@dirs[:dropbox]}/Braincase/Memories"
         run "mkdir #{@dirs[:dropbox]}/Braincase"
         ln @dirs[:backups], "#{@dirs[:dropbox]}/Braincase/Memories"
       end
@@ -103,7 +104,7 @@ module Braincase
 
     def save_config
 
-      if !has_braincase
+      if !has_braincase?
         return false
       end
 

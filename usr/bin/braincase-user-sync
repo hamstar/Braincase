@@ -7,6 +7,7 @@ require 'logger'
 require 'braincase/utils'
 require 'braincase/user_sync_manager'
 require 'braincase/user'
+require 'braincase/user_creator'
 
 abort "Must be root" if !Braincase.is_root?
 

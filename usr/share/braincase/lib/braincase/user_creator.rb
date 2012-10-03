@@ -3,7 +3,7 @@ require 'braincase/user_utils'
 module Braincase
   class UserCreator < UserUtils
 
-  	def init(log, config)
+  	def initialize(log, config)
   	  
   	  @log=log
   	  @config=config
@@ -28,9 +28,9 @@ module Braincase
         setup_local_repo
 
       rescue => e
-        log.error "Failed to create user #{@user.name}"
+        @log.error "Failed to create user #{@user.name}"
         Braincase.log_lines @log, e.message
-        Braincase.log_lines @log, e.stack
+        Braincase.log_lines @log, e.backtrace, :debug
       end
   	end
 	
@@ -46,7 +46,7 @@ module Braincase
     end
 
     def setup_logs
-      mkdir @user.dirs[:logs]
+      run "mkdir #{@user.dirs[:logs]}"
       touch @user.logs[:backup]
       touch @user.logs[:dropbox]
     end
@@ -142,9 +142,9 @@ module Braincase
     end
 
     def add_braincase
-      if !has_braincase?
+      if !@user.has_braincase?
         run "mkdir #{@user.dirs[:braincase]}"
-        save_config
+        @user.save_config
       end
     end
 
@@ -155,13 +155,13 @@ module Braincase
     end
 
     def run(cmd)
-      output = @user.run "(cmd)"
-      @log.debug "run as #{@user.name} finished with status #{$?.exitstatus}"
-      @log.debug "$ `#{cmd}`"
+      output = @user.run "#{cmd} 2>&1"
+      @log.debug "run `#{cmd}` as #{@user.name} finished with status #{$?.exitstatus}"
 
       if $?.exitstatus != 0
       	Braincase.log_lines @log, output
       end
+      output
     end
   end
 end

@@ -1,5 +1,3 @@
-require 'braincase/user_utils'
-
 module Braincase
   class UserUtils
     # Convenience methods - adds readability to the code

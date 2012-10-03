@@ -29,7 +29,12 @@ module Braincase
   end
 
   def Braincase.log_lines(log, lines, level=:error)
-    lines.split("\n").each do |line|
+    
+    if lines.class == String
+      lines = lines.split("\n")
+    end
+    
+    lines.each do |line|
       log.send(level, line) # call log.error line (unless caller sets level)
     end
   end
