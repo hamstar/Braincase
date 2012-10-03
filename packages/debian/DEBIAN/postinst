@@ -54,8 +54,8 @@ sed 's/\#cron\.\*/cron\.\*/' -i /etc/rsyslog.conf
 for log in `ls /var/log/braincase`; do
   link="/var/lib/dokuwiki/data/pages/admin/logs/"`echo $log|cut -d'/' -f5|sed 's/\.log/\.txt/'`;
   ln -s $log $link;
-  chgrp www-data $link;
-  chmod 755 $link;
+  chgrp www-data $log;
+  chmod 755 $log;
 done;
 
 # Reload apache ALWAYS DO THIS LAST
