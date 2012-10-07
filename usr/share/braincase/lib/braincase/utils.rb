@@ -14,14 +14,7 @@ module Braincase
   end
 
   def Braincase.current_user
-    user.home = Braincase::User.new `whoami`.chomp
-
-    conf = YAML.load( File.read( "#{user.home}/.braincase/config" ) )[user.name]
-    user.email = conf[:email]
-    user.full_name = conf[:full_name]
-    user.groups = conf[:groups]
-
-    user
+    Braincase::User.load `whoami`.chomp
   end
 
   def Braincase.is_root?

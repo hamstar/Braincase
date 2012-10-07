@@ -47,6 +47,17 @@ module Braincase
       u
     end
 
+    # Loads a user from the config file in their home directory
+    def self.load(name)
+
+      u = self.new name
+      raise RuntimeError, "User not exists" if !u.in_linux?
+      raise RuntimeError, "Not a braincase user" if !u.in_braincase?
+      raise RuntimeError, "User not saved" if !File.exist? "#{u.dirs[:braincase]}/config"
+
+      self.build File.read("#{u.dirs[:braincase]}/config").chomp
+    end
+
     def self.all
 
       users = Array.new
