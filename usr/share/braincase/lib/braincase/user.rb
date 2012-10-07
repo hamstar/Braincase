@@ -67,6 +67,7 @@ module Braincase
 
       users
     end
+
     def set_linux_password(secret)
       
       if !Braincase.is_root?
