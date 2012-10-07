@@ -86,13 +86,13 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
 
     mail.from                 = $conf[:email][:from]
     mail.to                   = $user.email
-    mail.address              = $conf[:email][:address]
-    mail.port                 = $conf[:email][:port]
+    mail.address              = "localhost"
+    mail.port                 = 25
     mail.domain               = $conf[:email][:domain]
-    mail.user_name            = $conf[:email][:user_name]
-    mail.password             = $conf[:email][:password]
-    mail.authentication       = $conf[:email][:authentication]
-    mail.enable_starttls_auto = true
+    #mail.user_name            = user
+    #mail.password             = password
+    #mail.authentication       = plaintext
+    #mail.enable_starttls_auto = true
   end
 
 end
