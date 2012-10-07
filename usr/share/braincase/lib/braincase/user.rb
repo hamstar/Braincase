@@ -81,7 +81,7 @@ module Braincase
       # Set what we can export backups to
       export_to :dropbox
       
-      run "backup perform --trigger=daily_backup --log-path #{@logs[:backup]}"
+      run "backup perform --trigger=daily_backup --log-path #{@dirs[:logs ]}"
     end
 
     # Preps files/folders/links to ensure that a backup can be exported
