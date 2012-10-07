@@ -151,6 +151,9 @@ module Braincase
     def add_backups
       if !File.directory? @user.dirs[:backups]
         run "mkdir -p #{@user.dirs[:backups]}/manifests"
+        run "mkdir -p #{@user.home}/Backup/models"
+        cp "daily_backup.rb", "#{@user.home}/Backup/models"
+        cp "backup_config.rb", "#{@user.home}/Backup/config.rb"
       end
     end
 

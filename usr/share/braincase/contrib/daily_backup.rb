@@ -8,7 +8,7 @@ require 'braincase/user'
 
 $conf = Braincase.config
 $user = Braincase.current_user
-$date = Time.new.strftime("%Y.%m.%d.%H.%M:%S")
+$date = Time.new.strftime("%Y.%m.%d.%H.%M:%S") # TODO: add this format string to config
 
 ##
 # Backup Generated: daily_backup
