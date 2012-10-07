@@ -34,16 +34,6 @@ module Braincase
       }
     end
 
-    def self.all
-
-      users = []
-      File.open( Braincase.config[:users_file], "r" ).each do |line|
-        users[] = self.build line
-      end
-
-      users
-    end
-
     # Build a user a line in the user_file
     def self.build(line)
       
@@ -57,6 +47,15 @@ module Braincase
       u
     end
 
+    def self.all
+
+      users = Array.new
+      File.open( Braincase.config[:users_file], "r" ).each do |line|
+        users << self.build(line)
+      end
+
+      users
+    end
     def set_linux_password(secret)
       
       if !Braincase.is_root?
