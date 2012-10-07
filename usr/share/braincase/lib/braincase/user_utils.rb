@@ -13,7 +13,7 @@ module Braincase
     # is treated as the contrib folder (usually /usr/share/braincase/contrib/)
     def cp(from, to, contrib=true)
       if contrib
-        from = "/usr/bin/share/braincase/contrib/"+from
+        from = "/usr/share/braincase/contrib/"+from
       end
 
       run "cp #{from} #{to}"
