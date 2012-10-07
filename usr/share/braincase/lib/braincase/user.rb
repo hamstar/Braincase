@@ -34,9 +34,9 @@ module Braincase
       }
     end
 
-    # Build a user a line in the user_file
+    # Build a user from a line in the user_file
     def self.build(line)
-      
+      @line = line
       vars = line.split(":")
       
       u = self.new vars[0]
@@ -103,21 +103,11 @@ module Braincase
 
     def save_config
 
-      if !has_braincase?
-        return false
-      end
+      return false if !has_braincase?
+      @line = "#{@name}::#{@full_name}:#{@email}:#{@groups}" if @line.nil?
 
-      c = { 
-        [@name] => {
-          full_name: @full_name,
-          email: @email,
-          groups: @groups,
-          dirs: @dirs,
-          logs: @logs
-        }
-      }
-
-      File.open("#{@dirs[:braincase]}/config","w") {|f| f.write c.to_yaml}
+      File.open("#{@dirs[:braincase]}/config","w") {|f| f.write @line}
+      own_file! "#{@dirs[:braincase]}/config"
     end
 
     def in_linux?
