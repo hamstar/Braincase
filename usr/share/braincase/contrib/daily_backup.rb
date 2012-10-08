@@ -8,7 +8,7 @@ require 'braincase/user'
 
 $conf = Braincase.config
 $user = Braincase.current_user
-$date = Time.new.strftime("%Y.%m.%d.%H.%M:%S") # TODO: add this format string to config
+$date = Time.new.strftime("%Y.%m.%d.%H.%M.%S") # TODO: add this format string to config
 
 ##
 # Backup Generated: daily_backup
@@ -45,18 +45,18 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
   #
   archive :dokuwiki do |a|
     a.add $user.dirs[:doku_current]
-    a.options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_dokuwiki.manifest"
+    a.tar_options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_dokuwiki.manifest"
   end
 
   archive :home do |a|
-    a.add "~"
+    a.add "#{$user.home}"
     a.exclude $user.repo
-    a.options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_home.manifest"
+    a.tar_options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_home.manifest"
   end
 
   archive :repo do |a|
     a.add $user.repo
-    a.options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_repo.manifest"
+    a.tar_options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_repo.manifest"
   end
 
   ##

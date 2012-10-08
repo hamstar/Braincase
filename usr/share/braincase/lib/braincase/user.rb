@@ -52,7 +52,7 @@ module Braincase
 
       u = self.new name
       raise RuntimeError, "User not exists" if !u.in_linux?
-      raise RuntimeError, "Not a braincase user" if !u.in_braincase?
+      raise RuntimeError, "Not a braincase user" if !u.has_braincase?
       raise RuntimeError, "User not saved" if !File.exist? "#{u.dirs[:braincase]}/config"
 
       self.build File.read("#{u.dirs[:braincase]}/config").chomp
