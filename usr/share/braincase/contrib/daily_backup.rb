@@ -43,21 +43,10 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
   #
   #  archive.exclude "/path/to/an/excluded_directory/
   #
-  archive :dokuwiki do |a|
-    a.add $user.dirs[:doku_current]
-    a.tar_options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_dokuwiki.manifest"
-  end
-
   archive :home do |a|
     a.add "#{$user.home}"
     a.exclude $user.repo
-    a.exclude "#{$user.repo}.mirror"
-    a.tar_options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_home.manifest"
-  end
-
-  archive :repo do |a|
-    a.add "#{$user.repo}.mirror"
-    a.tar_options "--index-file=#{$user.dirs[:backups]}/manifests/#{$date}_repo.manifest"
+    a.exclude $user.dirs[:backups]
   end
 
   ##
