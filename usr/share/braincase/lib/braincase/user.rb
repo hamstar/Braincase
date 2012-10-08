@@ -94,6 +94,13 @@ module Braincase
       export_to :dropbox
       
       run "backup perform --trigger=daily_backup --log-path #{@dirs[:logs ]}"
+
+    def can_backup?
+
+      return false if !File.exist? "#{@home}/Backup/config.rb"
+      return false if !File.exist? "#{@home}/Backup/models/daily_backup.rb"
+
+      true
     end
 
     # Preps files/folders/links to ensure that a backup can be exported
