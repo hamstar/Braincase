@@ -93,7 +93,10 @@ module Braincase
       # Set what we can export backups to
       export_to :dropbox
       
+      run "git clone --bare #{@repo} #{@repo}.mirror"
       run "backup perform --trigger=daily_backup --log-path #{@dirs[:logs ]}"
+      run "rm -fr #{@repo}.mirror"
+    end
 
     def can_backup?
 
