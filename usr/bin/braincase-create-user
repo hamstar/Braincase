@@ -12,12 +12,13 @@ $LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 require 'logger'
 require 'braincase/utils'
 require 'braincase/user'
+require 'braincase/user_creator'
 
 abort "Must be root" if !Braincase.is_root?
 
 # The usage message
 def usage
-  "Usage: create-braincase-user <name>";
+  "Usage: braincase-create-user <name>";
 end
 
 # Show the usage if username was ommitted
@@ -26,10 +27,11 @@ abort usage if ARGV[0].nil?
 log = Logger.new(Braincase.config[:createuser][:log])
 log.level = Logger::INFO
 
+creator = Braincase::UserCreator.new log, Braincase.config
+
 begin
   user = Braincase::User.new ARGV[0]
-  log.info "Creating user #{user.name}"
-  user.create
+  creator.create user
 rescue RuntimeError => e
   log.error e.message
   puts e.message

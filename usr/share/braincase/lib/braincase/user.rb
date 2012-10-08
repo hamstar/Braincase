@@ -1,7 +1,10 @@
-module Braincase
-  class User
+require 'braincase/utils'
+require 'braincase/user_utils'
 
-    attr_reader :name, :home
+module Braincase
+  class User < UserUtils
+
+    attr_reader :name, :home, :repo, :logs, :dirs
     attr_accessor :email, :full_name, :groups
 
     def initialize(name)
@@ -13,10 +16,27 @@ module Braincase
       @name=name
       @home="/home/#{name}"
       @repo="#{home}/#{name}.git"
+      
+      @dirs = {
+        home: @home,
+        repo: @repo,
+        doku: "#{@home}/.dokuwiki",                      # change the one down there too
+        braincase: "#{@home}/.braincase",
+        dropbox: "#{@home}/Dropbox",
+        backups: "#{@home}/backups",
+        logs: "#{@home}/logs",
+        doku_current: "#{@home}/.dokuwiki/data.current"  # change the one up there too ^^^
+      }
+      
+      @logs = {
+        backup: "#{@dirs[:logs]}/backup.log",
+        dropbox: "#{@dirs[:logs]}/dropbox_setup.log"
+      }
     end
 
-    # Build a user a line in the user_file
+    # Build a user from a line in the user_file
     def self.build(line)
+      @line = line
       vars = line.split(":")
       
       u = self.new vars[0]
@@ -27,7 +47,92 @@ module Braincase
       u
     end
 
-    def in_linux
+    # Loads a user from the config file in their home directory
+    def self.load(name)
+
+      u = self.new name
+      raise RuntimeError, "User not exists" if !u.in_linux?
+      raise RuntimeError, "Not a braincase user" if !u.has_braincase?
+      raise RuntimeError, "User not saved" if !File.exist? "#{u.dirs[:braincase]}/config"
+
+      self.build File.read("#{u.dirs[:braincase]}/config").chomp
+    end
+
+    def self.all
+
+      users = Array.new
+      File.open( Braincase.config[:users_file], "r" ).each do |line|
+        users << self.build(line)
+      end
+
+      users
+    end
+
+    def set_linux_password(secret)
+      
+      if !Braincase.is_root?
+        raise RuntimeError, "Only root is allowed to set passwords"
+      end
+
+      if !in_linux?
+        raise RuntimeError, "User #{@name} does not exist in linux"
+      end
+
+      pass = `openssl passwd #{secret}`.chomp
+      output = `usermod -p #{pass} #{@name}`  # set the password
+
+      if $?.exitstatus != 0
+        raise RuntimeError, "Unable to set password for user (#{$?.exitstatus}): #{output}"
+      end
+
+      true
+    end
+
+    def perform_backup
+
+      # Set what we can export backups to
+      export_to :dropbox
+      
+      run "cd #{@home} && git clone --bare #{@repo} #{@repo}.mirror"
+      run "backup perform --trigger=daily_backup --log-path #{@dirs[:logs ]}"
+      run "cd #{@home} && rm -fr #{@repo}.mirror"
+    end
+
+    def can_backup?
+
+      return false if !File.exist? "#{@home}/Backup/config.rb"
+      return false if !File.exist? "#{@home}/Backup/models/daily_backup.rb"
+
+      true
+    end
+
+    # Preps files/folders/links to ensure that a backup can be exported
+    # for whatever target is given
+    def export_to(target)
+      case target
+      when :dropbox
+        link_dropbox_backups
+      end
+    end
+
+    # Makes the link between backups and the Dropbox dir
+    def link_dropbox_backups
+      if has_dropbox? and !File.exist? "#{@dirs[:dropbox]}/Braincase/Memories"
+        run "mkdir #{@dirs[:dropbox]}/Braincase"
+        ln @dirs[:backups], "#{@dirs[:dropbox]}/Braincase/Memories"
+      end
+    end
+
+    def save_config
+
+      return false if !has_braincase?
+      @line = "#{@name}::#{@full_name}:#{@email}:#{@groups}" if @line.nil?
+
+      File.open("#{@dirs[:braincase]}/config","w") {|f| f.write @line}
+      own_file! "#{@dirs[:braincase]}/config"
+    end
+
+    def in_linux?
       File.directory? @home
     end
 
@@ -35,7 +140,11 @@ module Braincase
       File.directory? self.new(name).home
     end
 
-    def in_dokuwiki
+    def has_dropbox?
+      File.directory? @dirs[:dropbox]
+    end
+
+    def in_dokuwiki?
       begin
         return File.read(Braincase.config[:users_file]).match(/^#{user}:/)
       rescue
@@ -43,99 +152,24 @@ module Braincase
       end
     end
 
-    def has_repo
+    def has_repo?
       File.directory? @repo
     end
 
-    def has_braincase
-      File.directory? "#{@home}/.braincase"
+    def has_braincase?
+      File.directory? @dirs[:braincase]
     end
 
-    def create
-
-      add_to_linux
-      setup_bare_repo
-      add_userdir
-      add_braincase
-      add_backups
-      setup_local_repo
+    def has_dokuwiki?
+      File.directory? @dirs[:doku]
     end
 
-    def add_to_linux
-      if !in_linux
-        output = `/usr/sbin/useradd -s /bin/bash -md #{@home} #{@name} 2>&1`
-
-        # Die unless the user was created or exists
-        if $?.exitstatus != 0 and $?.exitstatus != 9
-          raise RuntimeError, "Could not add user to linux (#{$?.exitstatus}): #{output}"
-        end
-      end
-    end
-
-    def setup_bare_repo
-      if !has_repo
-        run "mkdir #{@repo}"
-        run "cd #{@repo} && git init --bare"
-        add_hook_to_repo
-      end
-    end
-
-    def setup_local_repo
-      if !File.directory? "#{@home}/.git"
-        run "cd ~ && git init"
-        run "cd ~ && git remote add origin #{@repo}"
-        run "cd ~ && git config --global user.email \"#{@email}\""
-        run "cd ~ && git config --global user.name \"#{@full_name}\""
-        add_ignore_file
-        do_first_commit
-      end
-    end
-
-    def do_first_commit
-      if File.directory? "#{@home}/.git"
-        run "cd ~ && git add . && git commit -m 'first commit'"
-        run "cd ~ && git push origin master 2>&1 > /dev/null"
-      else
-        @log.error "Couldn't do the first commit as the repo wasn't created!"
-      end
-    end
-
-    def add_ignore_file
-      `cp /usr/share/braincase/contrib/gitignore.example #{@home}/.gitignore`
-      own_file "#{@home}/.gitignore"
-    end
-
-    def add_hook_to_repo
-      `cp /usr/share/braincase/contrib/post-receive.example #{@repo}/hooks`
-      own_file "#{@repo}/hooks -R"
-      `chmod a+x #{@repo}/hooks -R`
-    end
-
-    def own_file(file)
+    def own_file!(file)
       `chown #{@name}:#{@name} #{file}`
     end
 
     def run(cmd)
-      `su #{@name} -c "#{cmd}"`
-    end
-
-    def add_userdir
-      if !File.directory? "#{@home}/public_html"
-        run "mkdir #{@home}/public_html"
-        run "touch #{@home}/public_html/.gitkeep"
-      end
-    end
-
-    def add_braincase
-      if !has_braincase
-        run "mkdir #{@home}/.braincase"
-      end
-    end
-
-    def add_backups
-      if !File.directory? "#{@home}/backups"
-        run "mkdir #{@home}/backups"
-      end
+      output=`su #{@name} -c "#{cmd}"`
     end
   end
 end
