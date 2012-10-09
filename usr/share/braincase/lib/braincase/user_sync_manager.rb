@@ -1,4 +1,5 @@
 require 'json'
+require 'braincase/exceptions'
 
 module Braincase
   class UserSyncManager
@@ -20,7 +21,7 @@ module Braincase
 
       # Run through each user and create ones that are missing
       File.open(@config[:users_file],"r").each do |line|
-        
+
         begin
 
           user = @user.build line # build user from a line in the users file
@@ -33,6 +34,9 @@ module Braincase
         rescue RuntimeError => e
         
           @log.error e.message
+        rescue RestrictedUserError
+
+          @log.info "Skipping restricted user in #{line}"
         end
       end
 

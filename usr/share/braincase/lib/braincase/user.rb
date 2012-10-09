@@ -1,4 +1,5 @@
 require 'braincase/utils'
+require 'braincase/exceptions'
 require 'braincase/user_utils'
 
 module Braincase
@@ -9,8 +10,8 @@ module Braincase
 
     def initialize(name)
       
-      if name == "root"
-        raise RuntimeError, "Cannot use root user"
+      if name == "root" or name == "admin"
+        raise RestrictedUserError
       end
 
       @name=name
@@ -62,7 +63,11 @@ module Braincase
 
       users = Array.new
       File.open( Braincase.config[:users_file], "r" ).each do |line|
-        users << self.build(line)
+        begin
+          users << self.build(line)
+        rescue RestrictedUserError
+          # silent ignore
+        end
       end
 
       users
