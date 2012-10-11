@@ -52,8 +52,8 @@ module Braincase
     def self.load(name)
 
       u = self.new name
-      raise RuntimeError, "User not exists" if !u.in_linux?
-      raise RuntimeError, "Not a braincase user" if !u.has_braincase?
+      raise UserMissingError if !u.in_linux?
+      raise NoBraincaseError if !u.has_braincase?
       raise RuntimeError, "User not saved" if !File.exist? "#{u.dirs[:braincase]}/config"
 
       self.build File.read("#{u.dirs[:braincase]}/config").chomp
@@ -93,14 +93,24 @@ module Braincase
       true
     end
 
+    # Performs a backup for the user
+    # Returns the timestamp in format YYYY.mm.dd.hh.mm.ss
     def perform_backup
-
-      # Set what we can export backups to
-      export_to :dropbox
       
+      add_memories_to_dropbox! if has_dropbox?
+
+      # Clone the repo incase something is writing to it while we are backing up
       run "cd #{@home} && git clone --bare #{@repo} #{@repo}.mirror"
-      run "backup perform --trigger=daily_backup --log-path #{@dirs[:logs ]}"
+      output=run "backup perform --trigger=daily_backup --log-path #{@dirs[:logs ]}"
       run "cd #{@home} && rm -fr #{@repo}.mirror"
+        
+      get_timestamp(output)
+    end
+
+    # Gets the timestamp from the backup script output
+    # in format YYYY.mm.dd.hh.mm.ss
+    def get_timestamp(output)
+      output.split("\n").first.match(/^\[([^\]]*)\]/)[1].gsub(/\/| |:/,'.')
     end
 
     def can_backup?
@@ -111,21 +121,9 @@ module Braincase
       true
     end
 
-    # Preps files/folders/links to ensure that a backup can be exported
-    # for whatever target is given
-    def export_to(target)
-      case target
-      when :dropbox
-        link_dropbox_backups
-      end
-    end
-
-    # Makes the link between backups and the Dropbox dir
-    def link_dropbox_backups
-      if has_dropbox? and !File.exist? "#{@dirs[:dropbox]}/Braincase/Memories"
-        run "mkdir #{@dirs[:dropbox]}/Braincase"
-        ln @dirs[:backups], "#{@dirs[:dropbox]}/Braincase/Memories"
-      end
+    def add_memories_to_dropbox!
+      run "mkdir -p #{@dirs[:dropbox]}/Braincase/Memories" if
+        !File.directory? "#{@dirs[:dropbox]}/Braincase/Memories"
     end
 
     def save_config

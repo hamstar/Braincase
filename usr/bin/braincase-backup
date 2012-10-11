@@ -8,43 +8,13 @@ $LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
 require 'braincase/utils'
 require 'braincase/user'
+require 'braincase/backup_manager'
 require 'logger'
 
 # Check we are root
 abort "Must be root" if !Braincase.is_root?
 
-# Define some errors that we will use
-class UserMissingError < StandardError
-end
-class NoBraincaseError < StandardError
-end
-class NoBackupEnvError < StandardError
-end
+log = Logger.new "/var/log/braincase/backup.log"
 
-# Run through all the users in dokuwiki
-Braincase::User.all.each do |user|
-  
-  log = Logger.new user.logs[:backup]
-
-  begin
-    raise UserMissingError if !user.in_linux?
-    raise NoBraincaseError if !user.has_braincase?
-    raise NoBackupEnvError if !user.can_backup?
-    user.perform_backup
-
-  rescue UserMissingError
-    log.error "#{user.name} does not exist in linux"
-
-  rescue NoBraincaseError
-    
-    log.error "#{user.name} is not a braincase user"
-  rescue NoBackupEnvError
-
-    log.error "#{user.name} does not have a properly setup backup environment"
-  rescue => e
-
-    log.error e.message
-  end
-
-  log = nil
-end
+bm = Braincase::BackupManager.new log
+bm.perform_backups
