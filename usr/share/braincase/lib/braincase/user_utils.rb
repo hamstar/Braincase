@@ -8,14 +8,13 @@ module Braincase
     def ln!(source, link)
       `ln -s #{source} #{link}`
     end
+    
+    def cp(from, to, opts="")
+      run "cp #{opts} #{from} #{to}"
+    end
 
-    # If contrib is true then the root directory of from
-    # is treated as the contrib folder (usually /usr/share/braincase/contrib/)
-    def cp(from, to, contrib=true)
-      if contrib
-        from = "/usr/share/braincase/contrib/"+from
-      end
-
+    def cp_contrib(file, to)
+      from = "/usr/share/braincase/contrib/"+file
       run "cp #{from} #{to}"
     end
 

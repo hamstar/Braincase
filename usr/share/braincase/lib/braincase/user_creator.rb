@@ -34,7 +34,7 @@ module Braincase
       end
   	end
 	
-	def add_to_linux!
+    def add_to_linux!
       if !@user.in_linux?
         output = `/usr/sbin/useradd -s /bin/bash -md #{@user.home} #{@user.name} 2>&1`
 
@@ -67,8 +67,8 @@ module Braincase
     def create_wiki_files!
 
       # Add default files
-      cp "user_start.txt", "#{@user.dirs[:doku_current]}/pages/start.txt"
-      cp "logs_start.txt", "#{@user.dirs[:doku_current]}/pages/logs/start.txt"
+      cp_contrib "user_start.txt", "#{@user.dirs[:doku_current]}/pages/start.txt"
+      cp_contrib "logs_start.txt", "#{@user.dirs[:doku_current]}/pages/logs/start.txt"
 
       # Modify files if needed
       File.open("#{@user.dirs[:doku_current]}/pages/logs/start.txt", "w+") {|f|
@@ -126,11 +126,11 @@ module Braincase
     end
 
     def add_ignore_file!
-      cp "gitignore.example", "#{@user.home}/.gitignore"
+      cp_contrib "gitignore.example", "#{@user.home}/.gitignore"
     end
 
     def add_hook_to_repo!
-      cp "post-receive.example", "#{@user.repo}/hooks/post-receive"
+      cp_contrib "post-receive.example", "#{@user.repo}/hooks/post-receive"
       `chmod u+x #{@user.repo}/hooks/post-receive`
     end
 
@@ -152,8 +152,8 @@ module Braincase
       if !File.directory? @user.dirs[:backups]
         run "mkdir -p #{@user.dirs[:backups]}"
         run "mkdir -p #{@user.home}/Backup/models"
-        cp "daily_backup.rb", "#{@user.home}/Backup/models"
-        cp "backup_config.rb", "#{@user.home}/Backup/config.rb"
+        cp_contrib "daily_backup.rb", "#{@user.home}/Backup/models"
+        cp_contrib "backup_config.rb", "#{@user.home}/Backup/config.rb"
         run "echo \[\] > #{@user.home}/memories.list"
       end
     end
