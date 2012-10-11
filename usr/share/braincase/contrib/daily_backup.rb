@@ -46,6 +46,9 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
   archive :home do |a|
     a.add "#{$user.home}"
     a.exclude $user.repo
+    a.exclude $user.dirs[:dropbox]
+    a.exclude "*dropbox*"
+    a.exclude "Backup"
     a.exclude $user.dirs[:backups]
   end
 
