@@ -7,3 +7,6 @@
 [submodule "var/lib/dokuwiki/lib/plugins/simpleperms"]
 	path = var/lib/dokuwiki/lib/plugins/simpleperms
 	url = https://github.com/bhavicp/dokuwiki-plugin-simpleperms.git
+[submodule "var/lib/dokuwiki/lib/plugins/bubble"]
+	path = var/lib/dokuwiki/lib/plugins/bubble
+	url = https://github.com/hamstar/dokuwiki-plugin-bubble.git

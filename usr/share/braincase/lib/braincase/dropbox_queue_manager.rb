@@ -23,7 +23,7 @@ module Braincase
 
           user = @user.build @users.match(/^#{name}:.*$/)[0] # get the user from the user list
 
-          next if !user.in_linux # don't try to setup dropbox if no linux user
+          next if !user.in_linux? # don't try to setup dropbox if no linux user
           
           # user enabled? remove from queue
           if @dropbox.enabled_for user

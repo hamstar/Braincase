@@ -1,0 +1,22 @@
+#!/usr/bin/ruby
+
+# Author: 	Robert McLeod
+# Date: 	11 Oct 2012
+# Desc:		Scans users for memories and adds them to their lists
+#           Scans users for short term memories and saves them to their
+# 			long term memories
+
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
+
+require "logger"
+require 'braincase/utils'
+require 'braincase/memorizer'
+
+# Check we are root
+abort "Must be root" if !Braincase.is_root?
+
+log = Logger.new "/var/log/braincase/memorizer.log"
+log.level = Logger::INFO
+
+memorizer = Braincase::Memorizer.new log
+memorizer.memorize

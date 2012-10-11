@@ -1,0 +1,6 @@
+//Did you want [[$USER$:Logs]] instead?//
+
+Welcome to the logs namespace.  Here you can find all the logs for operations that you complete on the system.
+
+  * [[dropbox_setup]]
+  * [[backup]]

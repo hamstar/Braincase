@@ -1,46 +1,20 @@
-#!/bin/bash
+#!/usr/bin/ruby
 
 # Author:	Robert McLeod
 # Date:		21 August 2012
 # Desc:		Backs up all braincase users on the system
 
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
+
+require 'braincase/utils'
+require 'braincase/user'
+require 'braincase/backup_manager'
+require 'logger'
+
 # Check we are root
+abort "Must be root" if !Braincase.is_root?
 
-# Check that the temp file exists and clear it
-function init() {
-	if ! [ -d "/tmp/braincase" ]; then
-		mkdir /tmp/braincase;
-	fi;
+log = Logger.new "/var/log/braincase/backup.log"
 
-	rm -fr /tmp/braincase/*
-}
-
-# Cleanup after the backup
-function cleanup() {
-	rm -fr /tmp/braincase/*	
-}
-
-# Function to run the backups
-function run_backups() {
-	
-	# Get a list of all the braincase users
-	USERS=`find /home -maxdepth 2 -name .braincase -type d 2> /dev/null | cut -d'/' -f3|tr -s '\n' ' '`;
-
-	# Run through all the users
-	for user in $USERS; do
-	  braincase-backup-user $user;
-	  braincase-export-backup $user;
-	done;
-}
-
-# Check the args
-case $1 in
-"--run")
-	init;
-	run_backups;
-	cleanup;
-	;;
-*)
-	echo "Usage: braincase-backup --run";
-	;;
-esac;
+bm = Braincase::BackupManager.new log
+bm.perform_backups
