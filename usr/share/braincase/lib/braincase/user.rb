@@ -1,11 +1,12 @@
 require 'braincase/utils'
 require 'braincase/exceptions'
+require 'json'
 require 'braincase/user_utils'
 
 module Braincase
   class User < UserUtils
 
-    attr_reader :name, :home, :repo, :logs, :dirs
+    attr_reader :name, :home, :repo, :logs, :dirs, :memories
     attr_accessor :email, :full_name, :groups
 
     def initialize(name)
@@ -33,6 +34,8 @@ module Braincase
         backup: "#{@dirs[:logs]}/backup.log",
         dropbox: "#{@dirs[:logs]}/dropbox_setup.log"
       }
+
+      @memories = JSON.load( File.read( "#{@home}/memories.list") )
     end
 
     # Build a user from a line in the user_file

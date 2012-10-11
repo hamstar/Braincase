@@ -154,6 +154,7 @@ module Braincase
         run "mkdir -p #{@user.home}/Backup/models"
         cp "daily_backup.rb", "#{@user.home}/Backup/models"
         cp "backup_config.rb", "#{@user.home}/Backup/config.rb"
+        run "echo \[\] > #{@user.home}/memories.list"
       end
     end
 
