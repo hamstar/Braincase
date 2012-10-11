@@ -55,7 +55,7 @@ module Braincase
 
       case target
       when :dropbox # export the backup to dropbox
-        backup = "#{@user.dirs[:backups]}/#{timestamp}"
+        backup = "#{@user.dirs[:backups]}/daily_backup/#{timestamp}"
         dropbox_backup = "#{@user.dirs[:dropbox]}/Braincase/Memories"
         @user.cp backup, dropbox_backup, "-R" # run as the user so the permissions are set
         raise BackupExportError if $?.exitstatus != 0
