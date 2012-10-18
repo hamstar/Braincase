@@ -78,11 +78,11 @@ module Braincase
     end
 
     def create_wiki_symlinks
-      # Link stuff
-      ln @user.dirs[:doku_current], "#{@user.dirs[:doku]}/data"
 
       @default_doku_folders.split(" ").each do |folder|
-        ln! "#{@user.dirs[:doku_current]}/#{folder}", "#{@config[:data_dir]}/#{folder}/#{@user.name}"
+        target = "#{@user.dirs[:doku_current]}/#{folder}"
+        link = "#{@config[:data_dir]}/#{folder}/#{@user.name}"
+        ln! target, link
       end
 
       link_logs_in_wiki
