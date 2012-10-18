@@ -35,7 +35,11 @@ module Braincase
         dropbox: "#{@dirs[:logs]}/dropbox_setup.log"
       }
 
-      @memories = JSON.load( File.read( "#{@home}/memories.list") )
+      if File.exist? "#{@home}/memories.list"
+        @memories = JSON.load( File.read( "#{@home}/memories.list") )
+      else
+        @memories = []
+      end
     end
 
     # Build a user from a line in the user_file
