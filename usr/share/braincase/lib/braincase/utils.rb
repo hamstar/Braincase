@@ -32,16 +32,35 @@ module Braincase
     end
   end
 
+  def Braincase.validate_user(username)
+    
+    begin
+      user = User.new username
+    rescue
+      return false
+    end
+
+    return true if
+      user.in_linux? and
+      user.has_braincase?
+    
+    false # invalid
+  end
+
+  def Braincase.validate_timestamp(timestamp)
+    return true if timestamp == "current"
+    return true if timestamp.match /\d{4}\.\d{2}\.\d{2}\.\d{2}.\d{2}.\d{2}/
+    false # invalid
+  end
+
   # allows us to send emails
   def Braincase.send_email(to,opts={})
 
-    c = Braincase.config
-
-    opts[:server]      ||= c[:email][:address]
+    opts[:server]      ||= "localhost"
     opts[:from]        ||= c[:email][:from]
     opts[:from_alias]  ||= "Braincase"
-    opts[:subject]     ||= "Message from Braincase"
-    opts[:body]        ||= "Nothing to report!"
+    opts[:subject]     ||= "o dear"
+    opts[:body]        ||= "o dear how did this get here i am not good with computer"
 
     msg = <<END_OF_MESSAGE
 From: #{opts[:from_alias]} <#{opts[:from]}>
