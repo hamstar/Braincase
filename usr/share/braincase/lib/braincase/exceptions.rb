@@ -6,5 +6,6 @@ module Braincase
   class NoBackupEnvError < StandardError; end
   class BackupExportError < StandardError; end
   class RestrictedUserError < StandardError; end
+  class RestoreError < StandardError; end
 
 end

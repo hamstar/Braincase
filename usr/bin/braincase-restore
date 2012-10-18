@@ -4,32 +4,49 @@ $LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
 require 'braincase/utils'
 require 'braincase/user'
+require 'braincase/exceptions'
+require 'braincase/restore_manager'
+require 'logger'
 
 def usage(message=nil)
   puts "#{message}" if !message.nil?
-  puts "Usage: braincase-restore <username> <timestamp>"
+  puts "Usage: braincase-restore <username> <source> <timestamp> <what>"
   puts "  <username>   the user to restore for"
+  puts "  <source>     the source to restore from (dropbox, local)"
   puts "  <timestamp>  should be a timestamp that correlates with a backup"
   puts "               that has already been performed and in the format the"
-  puts "               backup script uses: yyyy.mm.dd.hh.mm.ss or \"current\""
+  puts "               backup script uses: yyyy.mm.dd.hh.mm.ss or current"
+  puts "  <what>       what to restore (all, dokuwiki, repo)"
+  ""
 end
 
 username = ARGV[0]
-timestamp = ARGV[1]
-
-# Check the needed args are set
-abort usage("Missing arguments") if username.nil? or timestamp.nil?   #             yyyy .  mm  .  dd  .  hh .  mm . ss
-abort usage("Incorrect timestamp") if timestamp != "current" and !timestamp.match(/\d{4}\.\d{2}\.\d{2}\.\d{2}.\d{2}.\d{2}/)
-
-# Get the user and run some checks
-user = Braincase::User.new username
-abort "No such user" if !user.in_linux?
-abort "Not a braincase user" if !user.has_braincase?
+source = ARGV[1]
+timestamp = ARGV[2]
+what = ARGV[3]
 
 begin
-  restorer = Braincase::RestoreManager.new log, config
-  restorer.restore :dokuwiki, user, timestamp
+
+  #logname = Braincase.validate_user username ? 
+  #  "/home/#{username}/logs/restore.log" : 
+  #  "/var/log/braincase/restore.log"
+
+  log = Logger.new "/home/#{username}/logs/restore.log" #logname
+  log.level = Logger::DEBUG
+
+  rm = Braincase::RestoreManager.new log, Braincase.config
+  rm.restore from: source, what: what, who: username, when: timestamp
+
+rescue Braincase::RestoreError => e
+  log.error e.message
+  abort e.message
+
+rescue ArgumentError => e
+  log.error e.message
+  abort usage(e.message)
+
 rescue => e
   log.error e.message
   abort e.message
+
 end

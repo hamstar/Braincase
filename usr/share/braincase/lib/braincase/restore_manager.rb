@@ -1,89 +1,99 @@
 module Braincase
   class RestoreManager
-    
+
   	def initialize(log,config)
   	  @config=config
   	  @log=log
   	end
 
-  	def restore(what,user,timestamp)
+  	def restore(opts={})
   	  
-  	  @user = user
-  	  @timestamp = timestamp
+      check_and_build_arguments opts
+      
+      @log.info "Running restore with options #{opts.inspect}"
+      @log.debug "Need to restore #{@what} data"
 
-  	  case what
-  	  when :dokuwiki
-  	  	dokuwiki
+  	  case @what
+  	  when "dokuwiki"
+        @log.debug "Restoring dokuwiki data"
+        to = "#{@user.dirs[:doku]}/data.#{@timestamp}"
+        restore_from_home ".dokuwiki/data.current", to, 4
+
   	  else
-  	  	abort "Unsupported restore type #{what}"
+  	  	raise ArgumentError, "Unsupported restore type #{@what}"
+
   	  end
   	end
 
-  	def dokuwiki
-
-      link_in_dokuwiki get_location
-  	end
-
-  	def get_location
-
-  	  # Is this memory already in short term memory?
-      location = "#{user.dirs[:doku]}/data.#{timestamp}"
-      return location if File.directory? location
+    def check_and_build_arguments(opts={})
       
-      # Or do we have to extract it from our long term memory?
-      return extract_memory find_memory
-  	end
+      raise ArgumentError, "Missing arguments" if
+        opts[:who].nil? or 
+        opts[:when].nil? or 
+        opts[:from].nil? or
+        opts[:what].nil?
 
-    def find_memory
-      
-      # Is it in the list of memories?
-      @user.memories.each do |memory|
-        return memory if memory[:date] != @timestamp # found it!
-	  end
+      @user = User.load opts[:who]
 
-	  raise RuntimeError, "Cannot find memory for the timestamp #{@timestamp}"
-	end
+      raise UserMissingError if !@user.in_linux?
+      raise NoBraincaseError if !@user.has_braincase?
 
-    def extract_memory(memory)
-      
-      case memory[:source]
-      when "local"
-        backup_path = @user.dirs[:backup]
-      when "Dropbox"
-      	backup_path = @user.dirs[:dropbox]
-      else
-      	raise RuntimeError, "Unsupported backup source #{memory[:source]}"
-      end
+      @timestamp = opts[:when]
 
-      backup_tar = "#{backup_path}/#{@timestamp}/daily_backup.tar"
-      tmp_path = "#{@user.dirs[:tmp]}/#{@timestamp}" 
-      tmp_dokuwiki_tar = "#{tmp_path}/dokuwiki.tar.gz"
-      memory_location = "#{@user.dirs[:doku]}/data.#{@timestamp}"
+      raise ArgumentError, "Incorrect timestamp: #{@timestamp}" if
+        !Braincase.validate_timestamp @timestamp
+        
+      @source = opts[:from]
 
-      raise RuntimeError, "Cannot find the backup specified (#{backup_tar})" if !File.exist? backup_tar 
-  
-      FileUtils::rm_rf tmp_path if File.directory? tmp_path
-      FileUtils::mkpath tmp_path
-      FileUtils::mkpath memory_location
-      `tar -xf #{backup_tar} -C #{tmp_path}`
-      `tar -xzf #{tmp_dokuwiki_tar} -C #{memory_location}`
+      raise ArgumentError, "Invalid source: #{@source}" if
+        !["dropbox", "local"].include? @source
 
-      # Make sure our memory is not corrupt
-      raise RuntimeError, "Could not extract memory" if 
-        !File.directory? "#{memory_location}/pages" or
-        !File.directory? "#{memory_location}/meta" or
-        !File.directory? "#{memory_location}/attic"
+      @what = opts[:what]
 
-      memory_location
+      raise ArgumentError, "Invalid what: #{@what}" if
+        !["all", "dokuwiki", "repo"].include? @what
     end
 
-    def link_in_dokuwiki(location)
-      %w[pages meta attic].split(" ").each do |folder|
-      	link = "#{@config[:data_dir]}/#{folder}/#{@user.name}"
-      	target = "#{location}/#{folder}"
-        File.unlink link
-        File.symlink target, link
+    # Restores /home/user/{file} from the archive
+    # file as "" means the whole directory is extracted
+    #tar -xf daily_backup.tar daily_backup/archives/home.tar.gz --strip-components=2 --to-stdout | tar -zx /home/test/.dokuwiki --strip-components=2
+    def restore_from_home(file, to, strip_folders=2)
+
+      base = get_base
+
+      # Determine the file paths we need to play with
+      backup_tar = "#{base}/#{@timestamp}/daily_backup.tar"
+      gzipped_home = "daily_backup/archives/home.tar.gz"
+      restore_file = "/home/test/#{file}"
+
+      @log.debug "Restoring from tar: #{backup_tar}"
+      @log.debug "Restoring from archive in tar: #{gzipped_home}"
+      @log.debug "Restoring from archive path: #{restore_file}"
+      @log.debug "Restoring to: #{to}"
+
+      raise RestoreError, "Could not find backup tar" if !File.exist? backup_tar
+
+      # Create the directory and check it is there
+      @user.run "mkdir #{to}" if !File.directory? to
+      raise RestoreError, "Unable to create the directory #{to}" if !File.directory? to
+
+      output=`tar -xf #{backup_tar} #{gzipped_home} --strip-components=2 --to-stdout | tar -C #{to} -zx #{restore_file} --strip-components=#{strip_folders} 2>&1`
+
+      raise RestoreError, "Unable to restore the backup: #{output}" if $?.exitstatus != 0
+      # TODO: more postcons
+    end
+
+    # Determine the base directory from the source
+    def get_base
+      case @source
+      when "dropbox"
+        base = "#{@user.dirs[:dropbox]}/Braincase/Memories"
+      when "local"
+        base = "#{@user.dirs[:backups]}/daily_backup"
+      else
+        raise RestoreError, "Could not determine base directory: invalid source #{@source}"
       end
+      base
     end
   end
 end
