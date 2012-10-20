@@ -1,0 +1,48 @@
+#!/usr/bin/ruby
+
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
+
+require 'braincase/utils'
+require 'braincase/user'
+
+def usage
+  puts "Usage: braincase-wiki-switcher <username> <timestamp>"
+  puts "Ommitting timestamp will output the active timestamp"
+end
+
+username = ARGV[0]
+timestamp = ARGV[1]
+
+# Get the config
+config = Braincase.config
+
+# Check the user
+abort "Invalid user" if !Braincase.validate_user username
+user = Braincase::User.new username
+
+# See if the current timestamp is requested
+if timestamp.nil?
+  link = "#{config[:data_dir]}/pages/#{user.name}"
+  target = File.readlink( link )
+  match = target.match(/\/data\.(.*)\/pages/)
+  abort "unknown" if match.nil? # wtf?
+  puts match[1] # the timestamp
+  exit # get out of here, we don't need to do anything else
+end
+
+# Check the timestamp
+abort "Invalid timestamp" if !Braincase.validate_timestamp timestamp
+wiki_folder = "#{user.dirs[:doku]}/data.#{timestamp}"
+
+# check if the needed timestamp folder exists
+abort "No wiki exists with that timestamp" if !File.directory? wiki_folder
+
+# Link everything up
+%w[pages meta attic].each do |folder|
+  link = "#{config[:data_dir]}/#{folder}/#{user.name}"
+  target = "#{wiki_folder}/#{folder}"
+  File.unlink link if File.exist? link
+  File.symlink target, link
+end
+
+# Shizam

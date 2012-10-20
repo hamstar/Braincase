@@ -45,11 +45,14 @@ Backup::Model.new(:daily_backup, "Daily Braincase backup for #{$user.name}") do
   #
   archive :home do |a|
     a.add "#{$user.home}"
-    a.exclude $user.repo
-    a.exclude $user.dirs[:dropbox]
-    a.exclude "*dropbox*"
-    a.exclude "Backup"
-    a.exclude $user.dirs[:backups]
+    a.exclude $user.repo                          # don't backup the main repo
+    a.exclude "#{$user.home}/.git"                # don't backup the working git dir
+    a.exclude $user.dirs[:dropbox]                # don't include dropbox folder
+    a.exclude "#{$user.home}/*dropbox*"           # don't include dropbox install dirs
+    a.exclude "#{$user.home}/Backup"              # temporary backup data is in here! don't need it!
+    a.exclude "#{$user.dirs[:doku]}/data.*"       # only include current dokuwiki stuff
+    a.add "#{$user.dirs[:doku]}/data.current"     # only include current dokuwiki stuff
+    a.exclude $user.dirs[:backups]                # don't include stuff thats already backed up
   end
 
   ##

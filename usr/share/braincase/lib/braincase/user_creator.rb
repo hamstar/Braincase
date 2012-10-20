@@ -1,4 +1,5 @@
 require 'braincase/user_utils'
+require 'fileutils'
 
 module Braincase
   class UserCreator < UserUtils
@@ -12,7 +13,7 @@ module Braincase
 
   	def create(user)
 	  
-	  @user=user
+	    @user=user
       @log.debug "Creating a new Braincase user #{@user.name}"
 
       begin
@@ -25,6 +26,7 @@ module Braincase
         add_backups
         setup_logs
         setup_wiki!
+        apply_permissions
         setup_local_repo
 
       rescue => e
@@ -33,7 +35,7 @@ module Braincase
         Braincase.log_lines @log, e.backtrace, :debug
       end
   	end
-	
+
     def add_to_linux!
       if !@user.in_linux?
         output = `/usr/sbin/useradd -s /bin/bash -md #{@user.home} #{@user.name} 2>&1`
@@ -45,10 +47,19 @@ module Braincase
       end
     end
 
+    def apply_permissions
+      FileUtils.chown_R nil, "www-data", @user.dirs[:doku]
+      FileUtils.chown_R nil, "www-data", @user.dirs[:logs]
+      FileUtils.chmod_R "g+w", @user.dirs[:logs]
+      FileUtils.chmod "g+w", @user.logs[:restore]
+    end
+
     def setup_logs
       run "mkdir #{@user.dirs[:logs]}"
-      touch @user.logs[:backup]
-      touch @user.logs[:dropbox]
+      
+      @user.logs.each |log|
+        touch log
+      end
     end
 
     def setup_wiki!
@@ -78,11 +89,11 @@ module Braincase
     end
 
     def create_wiki_symlinks
-      # Link stuff
-      ln @user.dirs[:doku_current], "#{@user.dirs[:doku]}/data"
 
       @default_doku_folders.split(" ").each do |folder|
-        ln! "#{@user.dirs[:doku_current]}/#{folder}", "#{@config[:data_dir]}/#{folder}/#{@user.name}"
+        target = "#{@user.dirs[:doku_current]}/#{folder}"
+        link = "#{@config[:data_dir]}/#{folder}/#{@user.name}"
+        ln! target, link
       end
 
       link_logs_in_wiki
