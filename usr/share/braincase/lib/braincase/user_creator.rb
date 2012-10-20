@@ -12,7 +12,7 @@ module Braincase
 
   	def create(user)
 	  
-	  @user=user
+	    @user=user
       @log.debug "Creating a new Braincase user #{@user.name}"
 
       begin
@@ -47,8 +47,10 @@ module Braincase
 
     def setup_logs
       run "mkdir #{@user.dirs[:logs]}"
-      touch @user.logs[:backup]
-      touch @user.logs[:dropbox]
+      
+      @user.logs.each |log|
+        touch log
+      end
     end
 
     def setup_wiki!
