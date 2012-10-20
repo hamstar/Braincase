@@ -287,8 +287,8 @@ EOF;
 		<div class="summary" style="margin-right: 10px;">
 			<span>Permissions: <select name="simpleperm">
 				<option value="-1"$private_selected>Private</option>
-				<option value="0"$public_r_selected>Readable</option>
-				<option value="1"$public_rw_selected>Writeable</option>
+				<option value="0"$public_r_selected> Public Readable </option>
+				<option value="1"$public_rw_selected> Writeable </option>
 			</select></span>
 		</div>
 EOF;
