@@ -1,4 +1,5 @@
 require 'braincase/user_utils'
+require 'fileutils'
 
 module Braincase
   class UserCreator < UserUtils
@@ -25,6 +26,7 @@ module Braincase
         add_backups
         setup_logs
         setup_wiki!
+        apply_permissions
         setup_local_repo
 
       rescue => e
@@ -33,7 +35,7 @@ module Braincase
         Braincase.log_lines @log, e.backtrace, :debug
       end
   	end
-	
+
     def add_to_linux!
       if !@user.in_linux?
         output = `/usr/sbin/useradd -s /bin/bash -md #{@user.home} #{@user.name} 2>&1`
@@ -43,6 +45,13 @@ module Braincase
           raise RuntimeError, "Could not add user to linux (#{$?.exitstatus})\n#{output}"
         end
       end
+    end
+
+    def apply_permissions
+      FileUtils.chown_R nil, "www-data", @user.dirs[:doku]
+      FileUtils.chown_R nil, "www-data", @user.dirs[:logs]
+      FileUtils.chmod_R "g+w", @user.dirs[:logs]
+      FileUtils.chmod "g+w", @user.logs[:restore]
     end
 
     def setup_logs
