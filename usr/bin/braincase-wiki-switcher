@@ -41,7 +41,7 @@ abort "No wiki exists with that timestamp" if !File.directory? wiki_folder
 %w[pages meta attic].each do |folder|
   link = "#{config[:data_dir]}/#{folder}/#{user.name}"
   target = "#{wiki_folder}/#{folder}"
-  File.unlink link
+  File.unlink link if File.exist? link
   File.symlink target, link
 end
 

@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Braincase
   class RestoreManager
 
@@ -74,7 +76,7 @@ module Braincase
       raise RestoreError, "Could not find backup tar" if !File.exist? backup_tar
 
       # Create the directory and check it is there
-      @user.run "mkdir #{to}" if !File.directory? to
+      FileUtils.mkpath to if !File.directory? to
       raise RestoreError, "Unable to create the directory #{to}" if !File.directory? to
 
       output=`tar -xf #{backup_tar} #{gzipped_home} --strip-components=2 --to-stdout | tar -C #{to} -zx #{restore_file} --strip-components=#{strip_folders} 2>&1`
