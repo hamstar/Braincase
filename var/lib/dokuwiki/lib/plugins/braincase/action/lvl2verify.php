@@ -53,7 +53,7 @@ class action_plugin_braincase_lvl2verify extends DokuWiki_Action_Plugin {
 			// Verify and diff them
 			$this->_verify_access( $a0 );
 			$this->_verify_access( $a1 );
-			$htmldiff $this->_diff_archives( $a0, $a1 );
+			$htmldiff = $this->_diff_archives( $a0, $a1 );
 
 			$this->_print_report( $diff );
 
@@ -73,7 +73,7 @@ class action_plugin_braincase_lvl2verify extends DokuWiki_Action_Plugin {
 	private function _verify_access( $filename ) {
 
 		# check files are in the local backup folder
-		$basename_length = count($this->basename)
+		$basename_length = count($this->basename);
 		$_basename = substr( $a0, 0, $basename_length );
 
 		if ( $this->basename != $_basename )
@@ -137,7 +137,7 @@ class action_plugin_braincase_lvl2verify extends DokuWiki_Action_Plugin {
 		mkdir($path);
 
 		# Check we have the path
-		if ( !is_dir( $path )
+		if ( !is_dir( $path ) )
 			throw new Exception("Could not create the folder $path");
 
 		# This command ensures only the needed files ever hit the disk
@@ -212,7 +212,7 @@ class action_plugin_braincase_lvl2verify extends DokuWiki_Action_Plugin {
 		$diff = $diff[ count( $diff ) ];
 
 		# Drop the first line
-		$diff = explode("\n", $diff)
+		$diff = explode("\n", $diff);
 		unset($diff[0]);
 		
 		# Add HTML elements
