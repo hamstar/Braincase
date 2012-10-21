@@ -1,6 +1,6 @@
 <?php
 
-class action_braincase_lvl2verify_plugin extends Dokuwiki_Action_Plugin {
+class action_plugin_braincase_lvl2verify extends DokuWiki_Action_Plugin {
 	
 	private $user;
 	private $basename;
