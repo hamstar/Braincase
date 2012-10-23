@@ -1,0 +1,15 @@
+ul.diff li {
+	list-style-type: none;
+}
+
+ul.diff li.changed {
+	background: pink;
+}
+
+ul.diff li.added {
+	background: lightgreen;
+}
+
+ul.diff li.removed {
+	background: lightgreen;
+}

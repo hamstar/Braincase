@@ -63,6 +63,11 @@ class action_plugin_braincase_lvl2verify extends DokuWiki_Action_Plugin {
 		}
 	}
 
+	private function _print_report( $diff ) {
+
+		include PLUGIN_BASE."inc/level2_report.php";
+	}
+
 	/**
 	 * Verifies that the current dokuwiki user has access to the files
 	 * Throws exception if there are problems
