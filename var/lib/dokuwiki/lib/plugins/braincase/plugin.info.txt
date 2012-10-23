@@ -1,0 +1,7 @@
+base   autobackup
+author Robert McLeod
+email  hamstar@telescum.co.nz
+date   2012-09-05
+name   autobackup plugin
+desc   Provides automatic backups for the Braincase system
+url    https://github.com/hamstar/dokuwiki-plugin-autobackup
