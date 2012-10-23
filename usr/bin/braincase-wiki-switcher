@@ -1,5 +1,13 @@
 #!/usr/bin/ruby
 
+# Author: Robert McLeod
+# Date:   October 2012
+# Desc:   Switches braincase versions by changing where the symlink for
+#         the users namespace points.
+#         For example for the user test
+#         Actual data location:   /home/test/.dokuwiki/data.{DATE}/pages
+#         Symbolic link location: /var/lib/dokuwiki/data/pages/test
+
 $LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
 require 'braincase/utils'

@@ -81,6 +81,7 @@ module Braincase
       users
     end
 
+    # This only allows maximum 8 letters
     def set_linux_password(secret)
       
       if !Braincase.is_root?
