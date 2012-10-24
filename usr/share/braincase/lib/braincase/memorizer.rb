@@ -70,7 +70,8 @@ module Braincase
       	next if !File.directory? dir
         next if ( match = dir.match @pattern ).nil?
       	timestamp = match[1]
-      	@memories << { source: :dropbox, date: timestamp }
+		hash = `md5sum #{dir}/daily_backup.tar|cut -d' ' -f1`
+      	@memories << { source: :dropbox, date: timestamp, md5: hash }
       end
     end
 
@@ -80,7 +81,8 @@ module Braincase
         next if !File.directory? dir
       	next if ( match = dir.match @pattern ).nil?
       	timestamp = match[1]
-      	@memories << { source: :local, date: timestamp }
+		hash = `md5sum #{dir}/daily_backup.tar|cut -d' ' -f1`
+      	@memories << { source: :local, date: timestamp, md5: hash }
       end
     end
 
