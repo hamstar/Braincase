@@ -33,7 +33,7 @@ module Braincase
       @logs = {
         backup: "#{@dirs[:logs]}/backup.log",
         dropbox: "#{@dirs[:logs]}/dropbox_setup.log",
-        restore: "#{@dirs[:logs]}/restore.log",
+        restore: "#{@dirs[:logs]}/restore.log"
       }
 
       if File.exist? "#{@home}/memories.list"
