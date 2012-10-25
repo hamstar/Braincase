@@ -1,0 +1,42 @@
+#!/usr/bin/ruby
+
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
+
+require 'braincase/utils'
+require 'braincase/dropbox'
+require 'logger'
+
+def usage
+  "Usage: braincase-dropbox <enable|disable|status> <username>"
+end
+
+action=ARGV[0]
+username=ARGV[1]
+
+abort usage if action.nil? or username.nil?
+abort "Invalid user: #{username}" if !Braincase.validate_user username
+
+config = Braincase.config
+log = Logger.new config[:autodropbox][:log]
+
+user = Braincase::User.new username
+db = Braincase::Dropbox.new log, config
+
+begin
+  case action
+  	when "enable", "e"
+      puts db.queue user
+      #db.setup user if Braincase.is_root?
+    when "disable", "d"
+      db.unqueue user
+      db.disable! user if Braincase.is_root?
+    when "status", "s"
+      puts db.status user
+    else
+      puts usage
+  end
+rescue => e
+  log.error e
+  puts e.backtrace
+  abort e.message
+end

@@ -1,61 +1,88 @@
 module Braincase
   class Dropbox
 
-    def initialize(log)
+    def initialize(log, config=nil)
       @log=log
+      @config=config
+
+      @queues = @config[:autodropbox][:queues] if !@config.nil?
     end
 
+    # deprecated
   	def self.enabled_for(user)
   	  File.directory? "#{user.home}/Dropbox"
   	end
 
+    # deprecated
   	def self.installed_for(user)
   	  File.directory? "#{user.home}/.dropbox" and File.directory? "/home/#{user}/.dropbox-dist"
   	end
 
-  	def setup(user, type)
-      
-      @user=user
+    def in_q?(q, user)
 
-      case type
-      when :cli
-        return setup_cli
-      when :email
-        setup_email
-      else
-        raise RuntimeError, "Unknown setup type #{type}"
-      end
+      raise StandardError, "Queue not found: #{q}" if !File.exist? q
+      !`grep #{user.name} #{q}`.empty?
     end
 
-    private
-
-    def setup_cli
-      
-      install
-      url = get_url
-      autostart
-      
-      "Link DropBox to this account by pasting the following link in your browser:\n#{url}"
+    def enabled?(user)
+      File.directory? "#{user.home}/Dropbox"
     end
 
-    def setup_email
+    def disabled?(user)
+      !enabled?(user) and 
+        !in_q? @queues[:enabled], user and
+        !in_q? @queues[:enable], user
+    end
+
+    def queue(user)
+    
+      return if !disabled? user
+      raise StandardError, "#{user.name} has blank email" if user.email.nil?
+
+      File.open( @queues[:enable], "a" ) { |f|
+        f.puts "#{user.name}"
+      }
+
+      log.error "Failed to queue #{user.name}" if status user != "queued"
+      log.info "Queued #{user.name}" if status user == "queued"
+
+      status user == "queued"
+    end
+
+    def unqueue(user)
+      #TODO
+    end
+
+    def disable!(user)
+      #TODO
+    end
+
+    def status(user)
+      return "enabled" if enabled? user
+      return "emailed" if File.read( @queues[:enable] ).include? "#{user.name} emailed"
+      return "queued" if in_q? @queues[:enable], user
+      return "disabled" if disabled? user
+      return "error"
+    end
+
+  	def setup(user)
       
       install
       url = get_url
       autostart
 
       subject = "Dropbox has been enabled on your Braincase Account"
-      body = "Hi #{@user.name}\n\nDropbox has been enabled on your Braincase account."
+      body = "Hi #{user.name}\n\nDropbox has been enabled on your Braincase account."
       body+= " You just need to enable it on your Dropbox account by visiting"
       body+= " the following link in your browser:\n\n\t#{url}"
 
       # all sorted, send the email
-      Braincase.send_email @user.email, {
+      Braincase.send_email user.email, {
         subject: subject,
         body: body
       }
 
-      @log.info "URL sent to #{@user.email}"
+      @log.info "URL sent to #{user.email}"
     end
 
     def install
