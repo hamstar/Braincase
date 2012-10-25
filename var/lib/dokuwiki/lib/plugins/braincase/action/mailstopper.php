@@ -30,7 +30,6 @@ class action_plugin_braincase_mailstopper extends DokuWiki_Action_Plugin {
 		
 		// Set perms
 		chmod($file, 700); // only let the owner see this
-		chgrp($file, "root"); // set the group first so we still have permission...
-		chown($file, "root"); // ... to set the owner
+		chgrp($file, "root"); // set the group
 	}
 }

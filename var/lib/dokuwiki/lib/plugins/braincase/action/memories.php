@@ -22,9 +22,19 @@ if (!defined('DOKU_PLUGIN_IMAGES')) define('DOKU_PLUGIN_IMAGES',PLUGIN_BASE.'ima
 require_once DOKU_PLUGIN.'action.php';
 require_once PLUGIN_BASE.'lib/Dropbox.php';
 
-class action_plugin_braincase_memories extends Braincase_Action_Plugin {
+class action_plugin_braincase_memories extends DokuWiki_Action_Plugin {
 
     private $user;
+
+    public function __construct() {
+
+		global $INFO;
+
+		if ( isset( $INFO['client'] ) && is_string( $INFO['client']) )
+      		$this->user = $INFO['client'];
+
+		require_once PLUGIN_BASE.'lib/Dropbox.php';
+	}
 
     /**
      * Register hooks from dokuwiki
@@ -41,7 +51,7 @@ class action_plugin_braincase_memories extends Braincase_Action_Plugin {
 
       switch ( $event->data ) {
           case "memories":
-            if ( !is_array( $_SESSION ) ) {
+            if ( filter_var($INFO['client'], FILTER_VALIDATE_IP) !== FALSE ) { // no session send to login
               send_redirect("/doku.php?do=login");
               return;
             }
@@ -61,11 +71,8 @@ class action_plugin_braincase_memories extends Braincase_Action_Plugin {
     }
 
     public function handle_ajax_call_unknown(Doku_Event &$event, $param) {
-      
-      $this->_set_user();
 
       $event->preventDefault();
-      $event->stopPropagation();
 
       $json = new StdClass;
 
@@ -74,7 +81,7 @@ class action_plugin_braincase_memories extends Braincase_Action_Plugin {
           $json = $this->_restore_memory_from_ajax_request();
           break;
         default:
-          $json->message = "Unsupported request";
+          return;//$json->message = "Unsupported request";
           break;
       }
 
@@ -87,8 +94,6 @@ class action_plugin_braincase_memories extends Braincase_Action_Plugin {
     public function handle_tpl_act_unknown(Doku_Event &$event, $param) {
 
       global $INPUT;
-
-      $this->_set_user();
       
       try {
         switch ( $event->data ) {
@@ -191,6 +196,7 @@ class action_plugin_braincase_memories extends Braincase_Action_Plugin {
     }
 
     private function _get_current_timestamp() {
+
       // get current timestamp
       $cmd = "braincase-wiki-switcher {$this->user}";
       exec($cmd, $out, $ret);

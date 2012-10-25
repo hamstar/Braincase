@@ -20,10 +20,20 @@ if (!defined('PLUGIN_BASE')) define('PLUGIN_BASE', DOKU_PLUGIN.'braincase/');
 if (!defined('DOKU_PLUGIN_IMAGES')) define('DOKU_PLUGIN_IMAGES',PLUGIN_BASE.'images/');
 
 require_once DOKU_PLUGIN.'action.php';
-require_once PLUGIN_BASE.'lib/Dropbox.php';
-require_once PLUGIN_BASE.'lib/Braincase_Action_Plugin.php';
 
-class action_plugin_braincase_dropbox extends Braincase_Action_Plugin {
+class action_plugin_braincase_dropbox extends DokuWiki_Action_Plugin {
+
+    private $user;
+
+	public function __construct() {
+
+		global $INFO;
+
+		if ( isset( $INFO['client'] ) && is_string( $INFO['client']) )
+      		$this->user = $INFO['client'];
+
+		require_once PLUGIN_BASE.'lib/Dropbox.php';
+	}
 
     /**
      * Register hooks from dokuwiki
@@ -34,11 +44,8 @@ class action_plugin_braincase_dropbox extends Braincase_Action_Plugin {
     }
 
 	public function handle_ajax_call_unknown(Doku_Event &$event, $param) {
-      
-      $this->_set_user();
 
       $event->preventDefault();
-      $event->stopPropagation();
 
       $json = new StdClass;
 
