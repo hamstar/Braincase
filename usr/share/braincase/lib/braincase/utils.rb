@@ -57,7 +57,7 @@ module Braincase
   def Braincase.send_email(to,opts={})
 
     opts[:server]      ||= "localhost"
-    opts[:from]        ||= c[:email][:from]
+    opts[:from]        ||= Braincase.config[:email][:from]
     opts[:from_alias]  ||= "Braincase"
     opts[:subject]     ||= "o dear"
     opts[:body]        ||= "o dear how did this get here i am not good with computer"
