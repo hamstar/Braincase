@@ -25,18 +25,26 @@ module Braincase
         begin
 
           user = @user.build line # build user from a line in the users file
+          
+          # try to send the email again if it didn't work last time
+          check_for_notify_email user if user.has_braincase? and email_waiting(user) != false
+          
           next if user.has_braincase?
           
           @creator.create user
           @log.info "Created #{user.name} in system"
 
           check_for_notify_email user
+          
         rescue RuntimeError => e
         
           @log.error e.message
         rescue RestrictedUserError
 
           @log.info "Skipping restricted user in #{line}"
+        rescue UserCreationError => e
+
+          @log.error "Failed to create #{user.name}: #{e.message}"
         end
       end
 
@@ -55,23 +63,29 @@ module Braincase
       old_hash != @new_hash
     end
 
+    def email_waiting(user)
+
+      filename = "#{@config[:mailq]}/#{user.name}.txt"
+      return File.exist?(filename) ? filename : false;
+    end
+
     def check_for_notify_email(user)
       
-      saved_email = "#{@config[:mailq]}/#{user.name}.txt"
-      
-      if !File.exist? saved_email
-        @log.info "#{user.name} does not have a saved email"
-        return false
-      end
+      filename = email_waiting(user)
 
-      saved_email = JSON.load( File.read( saved_email ) )
+      log.info "#{user.name} has no notify email waiting" if filename == false
+      return if filename == false
+  
+      json = JSON.load( File.read( filename ) )
 
-      secret = extract_password saved_email["body"]
+      secret = extract_password json["body"]
       user.set_linux_password secret
       @log.info "Set password for #{user.name}"
       
-      notify_user saved_email
+      notify_user json
       @log.info "#{user.name} was sent their details via email"
+
+      File.unlink filename
     end
 
     def extract_password(body)

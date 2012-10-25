@@ -13,7 +13,7 @@ abort "Must be root" if !Braincase.is_root?
 
 config = Braincase.config
 log = Logger.new( config[:usersync][:log], "weekly" )
-log.level = Logger::INFO
+log.level = Logger::DEBUG
 
 log.info "Starting sync"
 
