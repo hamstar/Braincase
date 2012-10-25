@@ -77,15 +77,20 @@ module Braincase
 
     def create_wiki_files!
 
+      start = "#{@user.dirs[:doku_current]}/pages/start.txt"
+      log_start = "#{@user.dirs[:doku_current]}/pages/logs/start.txt"
+
       # Add default files
-      cp_contrib "user_start.txt", "#{@user.dirs[:doku_current]}/pages/start.txt"
-      cp_contrib "logs_start.txt", "#{@user.dirs[:doku_current]}/pages/logs/start.txt"
+      cp_contrib "user_start.txt", start
+      cp_contrib "logs_start.txt", log_start
 
       # Modify files if needed
-      File.open("#{@user.dirs[:doku_current]}/pages/logs/start.txt", "w+") {|f|
-        text = f.read.gsub("$USER$", @user.name)
-        f.write text
-      }
+      [start, log_start].each do |file|
+        File.open(file, "w+") {|f|
+          text = f.read.gsub("$USER$", @user.name)
+          f.write text
+        }
+      end
     end
 
     def create_wiki_symlinks
