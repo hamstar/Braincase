@@ -33,6 +33,7 @@ module Braincase
         @log.error "Failed to create user #{@user.name}"
         Braincase.log_lines @log, e.message
         Braincase.log_lines @log, e.backtrace, :debug
+        raise UserCreationError e.message
       end
   	end
 
