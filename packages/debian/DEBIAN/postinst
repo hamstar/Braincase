@@ -51,7 +51,7 @@ sed 's/\#cron\.\*/cron\.\*/' -i /etc/rsyslog.conf
 /etc/init.d/cron restart
 
 # Link the logs in (and perm them)
-for log in `ls /var/log/braincase`; do
+for log in /var/log/braincase; do
   link="/var/lib/dokuwiki/data/pages/admin/logs/"`echo $log|cut -d'/' -f5|sed 's/\.log/\.txt/'`;
   ln -s $log $link;
   chgrp www-data $log;
