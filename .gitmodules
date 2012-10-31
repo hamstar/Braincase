@@ -7,3 +7,6 @@
 [submodule "var/lib/dokuwiki/lib/plugins/bubble"]
 	path = var/lib/dokuwiki/lib/plugins/bubble
 	url = https://github.com/hamstar/dokuwiki-plugin-bubble.git
+[submodule "var/lib/dokuwiki/lib/plugins/creole"]
+	path = var/lib/dokuwiki/lib/plugins/creole
+	url = https://github.com/dokufreaks/plugin-creole.git
