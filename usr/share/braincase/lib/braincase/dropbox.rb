@@ -5,13 +5,45 @@ module Braincase
       @log=log
     end
 
+    # Deprecated
   	def self.enabled_for(user)
-  	  File.directory? "#{user.home}/Dropbox"
+  	  self.enabled? user
   	end
 
+    # Deprecated
   	def self.installed_for(user)
-  	  File.directory? "#{user.home}/.dropbox" and File.directory? "/home/#{user}/.dropbox-dist"
+  	  self.installed? user
   	end
+
+    def self.enabled?(user)
+      File.directory? "#{user.home}/Dropbox"
+    end
+
+    def self.installed?(user)
+      File.directory? "#{user.home}/.dropbox" and File.directory? "/home/#{user}/.dropbox-dist"
+    end
+
+    def self.queued?(user)
+      File.read(Braincase.config[:autodropbox][:queues][:enable]).include? user.name
+    end
+
+    def self.emailed?(user)
+      File.read(Braincase.config[:autodropbox][:queues][:enable]).include? "#{user.name} emailed"
+    end
+
+    def self.queue(user)
+      File.open(Braincase.config[:autodropbox][:queues][:enable], "a") {|f|
+        f.puts(user.name)
+      }
+    end
+
+    def self.status?(user)
+      return "enabled" if self.enabled? user
+      return "emailed" if self.emailed? user
+      return "queued" if self.queued? user
+      return "installed but not enabled" if self.installed? user
+      return "disabled"
+    end
 
   	def setup(user, type)
       
