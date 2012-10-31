@@ -49,7 +49,7 @@ module Braincase
 
     def apply_permissions
       FileUtils.chown_R nil, "www-data", @user.dirs[:doku]
-      FileUtils.chmod_R 0700, @user.dirs[:doku]
+      FileUtils.chmod_R 0770, @user.dirs[:doku]
       FileUtils.chown_R nil, "www-data", @user.dirs[:logs]
       FileUtils.chmod_R "g+w", @user.dirs[:logs]
       FileUtils.chmod "g+w", @user.logs[:restore]
