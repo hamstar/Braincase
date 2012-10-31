@@ -58,7 +58,7 @@ module Braincase
     def setup_logs
       run "mkdir #{@user.dirs[:logs]}"
       
-      @user.logs.each do |log|
+      @user.logs.each do |key, log|
         touch log
       end
     end
