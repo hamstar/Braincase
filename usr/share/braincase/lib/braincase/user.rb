@@ -26,6 +26,7 @@ module Braincase
         braincase: "#{@home}/.braincase",
         dropbox: "#{@home}/Dropbox",
         backups: "#{@home}/backups",
+        restores: "#{@home}/restores"
         logs: "#{@home}/logs",
         doku_current: "#{@home}/.dokuwiki/data.current"  # change the one up there too ^^^
       }

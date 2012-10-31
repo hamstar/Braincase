@@ -3,29 +3,31 @@ require 'fileutils'
 module Braincase
   class RestoreManager
 
-  	def initialize(log,config)
-  	  @config=config
-  	  @log=log
-  	end
+    def initialize(log,config)
+      @config=config
+      @log=log
+    end
 
-  	def restore(opts={})
-  	  
+    def restore(opts={})
+      
       check_and_build_arguments opts
       
       @log.info "Running restore with options #{opts.inspect}"
       @log.debug "Need to restore #{@what} data"
 
-  	  case @what
-  	  when "dokuwiki"
+      case @what
+      when "dokuwiki"
         @log.debug "Restoring dokuwiki data"
         to = "#{@user.dirs[:doku]}/data.#{@timestamp}"
         restore_from_home ".dokuwiki/data.current", to, 4
-
-  	  else
-  	  	raise ArgumentError, "Unsupported restore type #{@what}"
-
-  	  end
-  	end
+      when "all"
+        @log.debug "Restoring all data"
+        to = "#{@user.dirs[:restores]}/#{@timestamp}"
+        restore_from_home "", to
+      else
+        raise ArgumentError, "Unsupported restore type #{@what}"
+      end
+    end
 
     def check_and_build_arguments(opts={})
       

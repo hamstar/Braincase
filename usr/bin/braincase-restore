@@ -25,14 +25,14 @@ source = ARGV[1]
 timestamp = ARGV[2]
 what = ARGV[3]
 
+logname = !username.nil? ? 
+  "/home/#{username}/logs/restore.log" : 
+  STDOUT
+
+log = Logger.new logname
+log.level = Logger::DEBUG
+
 begin
-
-  #logname = Braincase.validate_user username ? 
-  #  "/home/#{username}/logs/restore.log" : 
-  #  "/var/log/braincase/restore.log"
-
-  log = Logger.new "/home/#{username}/logs/restore.log" #logname
-  log.level = Logger::DEBUG
 
   rm = Braincase::RestoreManager.new log, Braincase.config
   rm.restore from: source, what: what, who: username, when: timestamp
