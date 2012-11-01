@@ -19,4 +19,4 @@ log = Logger.new "/var/log/braincase/backup.log"
 bm = Braincase::BackupManager.new log
 bm.perform_backups
 
-system "braincase-memorizer"
+system "/usr/bin/braincase-memorizer"
