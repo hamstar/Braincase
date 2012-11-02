@@ -86,18 +86,18 @@ module Braincase
     def set_linux_password(secret)
       
       if !Braincase.is_root?
-        raise RuntimeError, "Only root is allowed to set passwords"
+        raise PasswordSetError, "Only root is allowed to set passwords"
       end
 
       if !in_linux?
-        raise RuntimeError, "User #{@name} does not exist in linux"
+        raise PasswordSetError, "User #{@name} does not exist in linux"
       end
 
       pass = `openssl passwd #{secret}`.chomp
       output = `usermod -p #{pass} #{@name}`  # set the password
 
       if $?.exitstatus != 0
-        raise RuntimeError, "Unable to set password for user (#{$?.exitstatus}): #{output}"
+        raise PasswordSetError, "Unable to set password for user (#{$?.exitstatus}): #{output}"
       end
 
       true

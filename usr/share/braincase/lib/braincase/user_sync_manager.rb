@@ -31,8 +31,11 @@ module Braincase
           @log.info "Created #{user.name} in system"
 
           check_for_notify_email user
-        rescue RuntimeError => e
-        
+
+        rescue PasswordMatchError => e
+          @log.error e.message
+
+        rescue PasswordSetError => e
           @log.error e.message
         rescue RestrictedUserError
           @log.debug "Skipping restricted user in #{line}"
@@ -78,7 +81,7 @@ module Braincase
       m = body.match(/Password : (.*)\n\n/)
       
       if m.nil?
-        raise RuntimeError, "Couldn't extact password from email for #{user.name}, they are still waiting for notification"
+        raise PasswordMatchError, "Couldn't get password from saved email"
       end
 
       m[1]

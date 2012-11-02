@@ -7,5 +7,7 @@ module Braincase
   class BackupExportError < StandardError; end
   class RestrictedUserError < StandardError; end
   class RestoreError < StandardError; end
+  class PasswordMatchError < StandardError; end
+  class PasswordSetError < StandardError; end
 
 end
