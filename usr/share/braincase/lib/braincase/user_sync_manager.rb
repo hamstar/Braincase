@@ -17,7 +17,7 @@ module Braincase
 
       return false if !users_changed?
 
-      @log.info "The user file has changed, doing a sync"
+      @log.debug "The user file has changed, doing a sync"
 
       # Run through each user and create ones that are missing
       File.open(@config[:users_file],"r").each do |line|
@@ -35,8 +35,8 @@ module Braincase
         
           @log.error e.message
         rescue RestrictedUserError
+          @log.debug "Skipping restricted user in #{line}"
 
-          @log.info "Skipping restricted user in #{line}"
         end
       end
 
@@ -49,8 +49,8 @@ module Braincase
       old_hash = File.read( @config[:usersync][:users_hash] )
       @new_hash = @md5.hexdigest(File.read(@config[:users_file]))
       
-      @log.info "old hash: #{old_hash}"
-      @log.info "new hash: #{@new_hash}"
+      @log.debug "old hash: #{old_hash}"
+      @log.debug "new hash: #{@new_hash}"
       
       old_hash != @new_hash
     end

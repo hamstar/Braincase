@@ -172,7 +172,7 @@ module Braincase
 
     def run(cmd)
       output = @user.run "#{cmd} 2>&1"
-      @log.debug "run `#{cmd}` as #{@user.name} finished with status #{$?.exitstatus}"
+      @log.debug "#{$?.exitstatus} #{@user.name} #{cmd}"
 
       if $?.exitstatus != 0
       	Braincase.log_lines @log, output

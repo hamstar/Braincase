@@ -15,10 +15,10 @@ config = Braincase.config
 log = Logger.new( config[:usersync][:log], "weekly" )
 log.level = Logger::INFO
 
-log.info "Starting sync"
+log.debug "Starting sync"
 
 creator = Braincase::UserCreator.new log, config
 usm = Braincase::UserSyncManager.new( creator, config, log, Braincase::User, Digest::MD5 )
 usm.sync
 
-log.info "Finished sync"
+log.debug "Finished sync"
