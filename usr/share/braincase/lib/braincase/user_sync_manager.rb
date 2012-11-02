@@ -23,7 +23,6 @@ module Braincase
       File.open(@config[:users_file],"r").each do |line|
 
         begin
-
           user = @user.build line # build user from a line in the users file
           next if user.has_braincase?
           
@@ -37,6 +36,7 @@ module Braincase
 
         rescue PasswordSetError => e
           @log.error e.message
+
         rescue RestrictedUserError
           @log.debug "Skipping restricted user in #{line}"
 
@@ -60,21 +60,27 @@ module Braincase
 
     def check_for_notify_email(user)
       
-      saved_email = "#{@config[:mailq]}/#{user.name}.txt"
+      saved_email = "#{@config[:usersync][:mailq]}/#{user.name}.txt"
       
       if !File.exist? saved_email
         @log.info "#{user.name} does not have a saved email"
+        @log.debug "#{saved_email} is missing, admin didn't check notify?"
         return false
       end
 
-      saved_email = JSON.load( File.read( saved_email ) )
+      @log.debug "found saved email at #{saved_email}"
 
-      secret = extract_password saved_email["body"]
+      j = JSON.load( File.read( saved_email ) )
+
+      secret = extract_password j["body"]
       user.set_linux_password secret
-      @log.info "Set password for #{user.name}"
+      @log.info "Set linux password for #{user.name}"
       
-      notify_user saved_email
+      notify_user j
       @log.info "#{user.name} was sent their details via email"
+
+      # Delete the file now that we are done with it
+      File.unlink saved_email
     end
 
     def extract_password(body)
