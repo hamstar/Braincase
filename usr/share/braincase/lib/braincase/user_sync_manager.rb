@@ -78,7 +78,7 @@ module Braincase
     end
 
     def extract_password(body)
-      m = body.match(/Password : (.*)\n\n/)
+      m = body.match(/Password : (.*)\n\n--/)
       
       if m.nil?
         raise PasswordMatchError, "Couldn't get password from saved email"
