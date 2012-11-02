@@ -10,3 +10,6 @@
 [submodule "var/lib/dokuwiki/lib/plugins/creole"]
 	path = var/lib/dokuwiki/lib/plugins/creole
 	url = https://github.com/dokufreaks/plugin-creole.git
+[submodule "var/lib/dokuwiki/lib/plugins/simpleperms"]
+	path = var/lib/dokuwiki/lib/plugins/simpleperms
+	url = https://github.com/hamstar/dokuwiki-plugin-simpleperms.git
