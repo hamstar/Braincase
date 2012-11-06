@@ -1,0 +1,48 @@
+#!/usr/bin/ruby
+
+# Author:	Robert McLeod
+# Date:		01 Nov 2012
+# Desc:		Does dropbox related stuff for braincase
+
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
+
+require 'braincase/utils'
+require 'braincase/dropbox'
+require 'logger'
+
+def usage
+  "Usage: braincase-dropbox <queue|status> <username>"
+end
+
+action=ARGV[0]
+username=ARGV[1]
+
+# Some validation
+abort usage if action.nil?
+abort usage if username.nil?
+abort "invalid user" if !Braincase.validate_user username
+
+# Some configuration of variables
+queues = Braincase.config[:autodropbox][:queues]
+user = Braincase::User.new username
+log = Logger.new user.logs[:dropbox]
+log.level = Logger::DEBUG
+
+# Do stuff!
+case action
+when "queue"
+
+  # Validate the user should be added to the queue
+  abort "already enabled" if Braincase::Dropbox.enabled? user
+  abort "already emailed" if Braincase::Dropbox.emailed? user
+  abort "already queued" if Braincase::Dropbox.queued? user
+
+  # Add the user to the queue
+  Braincase::Dropbox.queue user
+
+  log.info "Queued #{user.name} for Dropbox setup"
+when "status"
+  puts Braincase::Dropbox.status? user
+else
+  abort usage
+end

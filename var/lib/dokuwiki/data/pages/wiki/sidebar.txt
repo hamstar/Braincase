@@ -1,0 +1,5 @@
+=== Navigation ===
+
+    * [[Start]]
+  * [[http://bctest/doku.php?do=profile|Profile]]
+  * [[https://github.com/hamstar/Braincase|Github]]

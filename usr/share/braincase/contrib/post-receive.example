@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Updating $HOME with your changes";
+export GIT_WORK_TREE=$HOME
+export GIT_DIR=$HOME/.git
+cd $HOME;
+git pull origin master > /dev/null

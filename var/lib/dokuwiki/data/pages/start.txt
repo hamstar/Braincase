@@ -1,0 +1,15 @@
+==== Welcome ====
+
+Welcome to Braincase.
+
+This is your default start page. Braincase offers the following to you as a user
+
+* Automated backups to Dropbox -> Set this up in User Profiles
+
+* Webhosting Space -> Upload files to ~/public_html/ and they will then be visible at http://server/~USER/
+
+* A personal Git repostority ->
+
+* SSH Access
+
+* SSL access to the wiki which is at https://server . Here you can create pages and store your knowledge. Pages can be either private or public.

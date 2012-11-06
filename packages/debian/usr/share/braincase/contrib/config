@@ -1,9 +1,0 @@
-# Example dropbox file stored at ~/.braincase/config
-#
-# WARNING: This file should only be readable by the owner
-# 	run this command: `chmod 700 ~/.braincase/config'
-
---- 
-backups: 
-  :export: "false"
-  :export_to: ""

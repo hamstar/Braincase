@@ -1,91 +1,25 @@
 #!/usr/bin/ruby
 
-# TODO: CHECK USER IS ROOT
+$LOAD_PATH.unshift(File.dirname("/usr/share/braincase/lib/braincase"))
 
 require 'logger'
+require 'braincase/utils'
+require 'braincase/user'
+require 'braincase/dropbox'
+require 'braincase/dropbox_queue_manager'
 
-# TODO: Put these locations in a single config file
-# that caHn be read by both the scripts and the plugins
-queues = {
-  :enable => "/var/lib/dokuwiki/data/pages/braincase/dropbox/enable_queue.txt",
-  :enabled => "/var/lib/dokuwiki/data/pages/braincase/dropbox/enabled_users.txt"
-}
+abort "Must be root" if !Braincase.is_root?
 
-userfile = "/etc/dokuwiki/users.auth.php"
-passwd = File.read( userfile )
+config = Braincase.config
+queues = config[:autodropbox][:queues]
+users = File.read( config[:users_file] )
 
-logfile = "/var/log/braincase/autodropbox.log"
-log = Logger.new( logfile, "weekly" )
+log = Logger.new( config[:autodropbox][:log], "weekly" )
 log.level = Logger::INFO
 
-class DropboxQueueManager
+log.info "Starting queue run"
 
-  def initialize(queues, passwd, log)
-    @queues = queues
-    @log = log
-  end
-
-  def enable
-
-    f = File.open(@queues[:enable], 'r') # open the queue
-    lines = f.read.split("\n")
-    f.close
-
-    @log.info "#{lines.count} users in the queue"
-
-    lines.each do |user| # loop through each line in the file
-      
-      if `user-exists #{user}; echo $?`.chomp == "0" # check the user actually exists
-
-        @log.info "#{user} exists in the system"
-
-        if File.directory? "/home/#{user}/Dropbox" # is the Dropbox folder present?
-
-          @log.info "#{user} already setup for Dropbox"
-          remove_from_enable_queue user
-          add_user_to_enabled_users user
-        else
-
-          enable_user user # otherwise set them up
-        end
-      end
-    end
-  end
-
-  private
-
-  def enable_user(user)
-    email = passwd.match(/^#{user}:.*/)[0].split(":")[3]
-    system "su #{user} -c \"braincase-setup-dropbox -e #{email}\""
-    @log.info "#{user} setup for Dropbox access"
-  end
-
-  def remove_from_enable_queue(user)
-    
-    text = File.read(@queues[:enable])
-    text.gsub!(/^#{user}$/, "") # remove the user from the queue
-    text.gsub!(/^$/, "") # clear blank lines
-    puts "TEXT: #{text}"
-    
-    File.open(@queues[:enable], 'w') do |f|
-      f.write text
-    end
-  end
-
-  def add_user_to_enabled_users(user)
-    
-    # drop out if user already enabled
-    if File.read(@queues[:enabled]).include? "#{user}\n"
-      return;
-    end
-
-    # otherwise add the user to the file
-    File.open(@queues[:enabled], "a") do |f|
-      f.puts user
-    end
-  end
-
-end
-
-dqm = DropboxQueueManager.new(queues, passwd, log)
+dqm = Braincase::DropboxQueueManager.new(queues, users, log, Braincase::Dropbox, Braincase::User)
 dqm.enable
+
+log.info "Finished queue run"

@@ -1,0 +1,22 @@
+---
+braincase:
+  :users_file: "/etc/dokuwiki/users.auth.php"
+  :data_dir: "/var/lib/dokuwiki/data"
+
+  :email:
+    :from: "braincase@example.com"
+    :domain: "example.com"
+
+  :createuser:
+    :log: "/var/log/braincase/createuser.log"
+
+  :usersync:
+    :users_hash: "/var/lib/braincase/users.hash"
+    :log: "/var/log/braincase/usersync.log"
+    :mailq: "/var/lib/braincase/mailq"
+
+  :autodropbox:
+    :log: "/var/log/braincase/autodropbox.log"
+    :queues:
+      :enable: "/var/lib/dokuwiki/data/pages/admin/dropbox/enable_queue.txt"
+      :enabled: "/var/lib/dokuwiki/data/pages/admin/dropbox/enabled_users.txt"

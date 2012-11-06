@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Author:	Robert McLeod
+# Date: 	11 Oct 2012
+# Desc:		Recalls memories of a user and lists what
+#			is in those memories
+
+function usage {
+	echo "Usage: braincase-recall <user> [timestamp]";
+	echo "Ommitting timestamp will list available memory timestamps";
+}
+
+# Catch incorrect arguments
+if [ "$1" = "" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  usage;
+  exit 1;
+fi;
+
+# Build variables
+HOME="/home/$1";
+BACKUP_DIR="$HOME/backups/daily_backup/$2"
+
+# Check if home exists
+if ! [ -e "$HOME" ]; then
+	echo "User doesn't exist";
+	exit 1;
+fi;
+
+# Check if the backup dir exists
+if ! [ -e "$BACKUP_DIR" ]; then
+	echo "No memories to recall ($BACKUP_DIR)";
+	exit 1;
+fi;
+
+# List the memories available
+if [ "$2" = "" ]; then
+	ls $BACKUP_DIR;
+	exit 0;
+fi;
+
+# List the stuff that is in the memories
+tar --to-stdout --strip-components=2 -xf $BACKUP_DIR/daily_backup.tar daily_backup/archives/home.tar.gz|tar -tz

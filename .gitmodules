@@ -1,3 +1,15 @@
 [submodule "var/lib/dokuwiki/lib/plugins/autobackup"]
 	path = var/lib/dokuwiki/lib/plugins/autobackup
 	url = https://github.com/hamstar/dokuwiki-plugin-autobackup.git
+[submodule "var/lib/dokuwiki/lib/tpl/taratasy"]
+	path = var/lib/dokuwiki/lib/tpl/taratasy
+	url = git://github.com/hamstar/taratasy.git
+[submodule "var/lib/dokuwiki/lib/plugins/bubble"]
+	path = var/lib/dokuwiki/lib/plugins/bubble
+	url = https://github.com/hamstar/dokuwiki-plugin-bubble.git
+[submodule "var/lib/dokuwiki/lib/plugins/creole"]
+	path = var/lib/dokuwiki/lib/plugins/creole
+	url = https://github.com/dokufreaks/plugin-creole.git
+[submodule "var/lib/dokuwiki/lib/plugins/simpleperms"]
+	path = var/lib/dokuwiki/lib/plugins/simpleperms
+	url = https://github.com/hamstar/dokuwiki-plugin-simpleperms.git
