@@ -93,7 +93,7 @@ module Braincase
         raise PasswordSetError, "User #{@name} does not exist in linux"
       end
 
-      pass = `/usr/bin/openssl passwd #{secret} 2>&1`.chomp
+      pass = `/usr/bin/openssl passwd -1 #{secret} 2>&1`.chomp
       output = `/usr/sbin/usermod -p #{pass} #{@name} 2>&1`.chomp  # set the password
 
       if $?.exitstatus != 0
